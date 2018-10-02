@@ -1,6 +1,5 @@
 import axios from 'axios'
 import history from '../history'
-import { handleSignMessage } from './utils';
 
 /**
  * ACTION TYPES
@@ -12,13 +11,20 @@ const AUTHENTICATE_USER = 'AUTHENTICATE_USER'
 /**
  * INITIAL STATE
  */
-const defaultUser = {}
+const defaultUser = {
+  current: {},
+  authToken: {}
+}
 
 /**
  * ACTION CREATORS
  */
 const getUser = user => ({type: GET_USER, user})
 const removeUser = () => ({type: REMOVE_USER})
+const authenticateUser = token => ({
+  type: AUTHENTICATE_USER,
+  token
+})
 
 /**
  * THUNK CREATORS
@@ -84,15 +90,32 @@ export const postUser = publicAddress => async dispatch => {
   }
 }
 
+export const handleAuthenticate = signed => async dispatch => {
+  try {
+    const { publicAddress, signature } = signed;
+    const { data } = await axios.post('/auth/web3', { publicAddress, signature });
+    dispatch(authenticateUser(data));
+  } catch (err) {
+    window.alert('Authentication failed!')
+    console.error(err);
+  }
+}
+
 /**
  * REDUCER
  */
 export default function(state = defaultUser, action) {
   switch (action.type) {
+
     case GET_USER:
-      return action.user
+      return {...state, current: action.user};
+
     case REMOVE_USER:
       return defaultUser
+
+    case AUTHENTICATE_USER:
+      return {...state, authToken: action.token};
+
     default:
       return state
   }
