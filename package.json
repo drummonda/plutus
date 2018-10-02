@@ -1,0 +1,34 @@
+{
+  "name": "plutus",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drummonda/plutus.git"
+  },
+  "author": "Andrew Drummond",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/drummonda/plutus/issues"
+  },
+  "homepage": "https://github.com/drummonda/plutus#readme",
+  "dependencies": {
+    "compression": "^1.7.3",
+    "ethereumjs-util": "^5.2.0",
+    "express": "^4.16.3",
+    "express-jwt": "^5.3.1",
+    "jsonwebtoken": "^8.3.0",
+    "morgan": "^1.9.1",
+    "path": "^0.12.7",
+    "pg": "^7.4.3",
+    "sequelize": "^4.39.0",
+    "socket.io": "^2.1.1"
+  }
+}
