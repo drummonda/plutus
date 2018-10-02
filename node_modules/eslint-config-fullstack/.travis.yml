@@ -1,0 +1,13 @@
+language: node_js
+node_js:
+  - node # uses most recent stable node version
+dist: trusty # uses trusty environment
+sudo: false # when on trusty, uses Docker containers for speed
+before_install:
+  - npm install -g greenkeeper-lockfile # needed to keep package-lock in sync
+install:
+  - npm i # disable npm ci for greenkeeper's sake
+before_script:
+  - greenkeeper-lockfile-update
+after_script:
+  - greenkeeper-lockfile-upload
