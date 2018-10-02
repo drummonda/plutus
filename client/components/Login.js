@@ -12,14 +12,16 @@ class Login extends Component {
     this.state = {
       loading: false
     };
-    this.handleClick = this.handleClick.bind(this);
+    this.handleLogin = this.handleLogin.bind(this);
   }
 
-  async handleClick() {
+  async handleLogin() {
     const { onLoggedIn } = this.props;
-    this.initializeWeb3();
 
     try {
+      // First, grab the web3 provider
+      this.initializeWeb3();
+
       // Does the user exist? If not, create one
       const userExists = await this.props.fetchUser(publicAddress);
       const addr = await (userExists ? this.props.user : this.props.postUser(publicAddress));
@@ -51,7 +53,7 @@ class Login extends Component {
     const { loading } = this.state;
     return (
       <div className="login">
-          <Button primary className="Login-button Login-mm" onClick={this.handleClick}>
+          <Button primary className="Login-button Login-mm" onClick={this.handleLogin}>
             {loading ? 'Loading...' : 'Login as a User with MetaMask'}
           </Button>
       </div>

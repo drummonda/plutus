@@ -15,17 +15,16 @@ class Main extends Component {
 
   componentWillMount() {
     const auth = JSON.parse(localStorage.getItem(LS_KEY));
-    const userType = localStorage.getItem('user');
     this.setState({ auth });
   }
 
+  // Grab the auth token and pass it to localStorage
   handleLoggedIn(auth) {
-    console.log("This is the handle logged in auth", auth);
     localStorage.setItem(LS_KEY, JSON.stringify(auth));
     this.setState({ auth });
-    console.log("This is the new state", this.state);
   }
 
+  // Remove the auth token from localStorage
   handleLoggedOut() {
     localStorage.removeItem(LS_KEY);
     this.setState({ auth: undefined });

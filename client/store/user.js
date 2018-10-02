@@ -6,6 +6,8 @@ import history from '../history'
  */
 const GET_USER = 'GET_USER'
 const REMOVE_USER = 'REMOVE_USER'
+const LOG_IN = 'LOG_IN'
+const LOG_OUT = 'LOG_OUT'
 const AUTHENTICATE_USER = 'AUTHENTICATE_USER'
 
 /**
