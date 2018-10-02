@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
-import Web3 from 'web3';
-import axios from 'axios';
-import {Button} from 'semantic-ui-react'
-
-let web3 = null;
+import React, { Component } from 'react'
+import axios from 'axios'
+import { connect } from 'react-redux'
+import { Button } from 'semantic-ui-react'
+import { getProvider, fetchUser, postUser, handleAuthenticate } from '../store'
+import { handleSignMessage } from '../utils'
 
 class Login extends Component {
 
@@ -12,73 +12,39 @@ class Login extends Component {
     this.state = {
       loading: false
     };
-    this.handleAuthenticate = this.handleAuthenticate.bind(this);
     this.handleClick = this.handleClick.bind(this);
-    this.handleSignMessage = this.handleSignMessage.bind(this);
-    this.handleSignup = this.handleSignup.bind(this);
-  }
-
-  async handleAuthenticate({ publicAddress, signature }) {
-    const {data} = await axios.post('/auth/web3', { publicAddress, signature });
-    return data;
   }
 
   async handleClick() {
     const { onLoggedIn } = this.props;
-
-    if (!window.web3) {
-      window.alert('Please install MetaMask first.');
-      return;
-    }
-    if (!web3) {
-      // We don't know window.web3 version, so we use our own instance of web3
-      // with provider given by window.web3
-      web3 = new Web3(window.web3.currentProvider);
-    }
-    const coinbase = await web3.eth.getCoinbase((err, coinbase) => {
-      return coinbase || err;
-    })
-    if (!coinbase) {
-      window.alert('Please activate MetaMask first.');
-      return;
-    }
-    const publicAddress = coinbase;
-    this.setState({ loading: true });
+    this.initializeWeb3();
 
     try {
-      // Look if user with current publicAddress is already present on backend
-      const {data} = await axios.get(`/api/users?publicAddress=${publicAddress}`)
+      // Does the user exist? If not, create one
+      const userExists = await this.props.fetchUser(publicAddress);
+      const addr = await (userExists ? this.props.user : this.props.postUser(publicAddress));
 
+      // Grab the user's signed message from metamask
+      const signed = await handleSignMessage(web3, addr);
 
-      const addr = await (data.length ? data[0] : this.handleSignup(publicAddress));
+      // Generate a jwt authentication token
+      await this.props.handleAuthenticate(signed);
+      const { authToken } = this.props;
 
-
-      const signed = await this.handleSignMessage(addr);
-      const auth = await this.handleAuthenticate(signed);
-      onLoggedIn(auth);
+      // Store the token and complete login
+      onLoggedIn(authToken);
 
     } catch (err) {
+      window.alert(err.message);
       console.error(err);
       this.setState({ loading: false });
     }
   }
 
-  handleSignMessage({ publicAddress, nonce }) {
-    return new Promise((resolve, reject) =>
-      web3.eth.personal.sign(
-        web3.utils.fromUtf8(`I am signing my one-time nonce: ${nonce}`),
-        publicAddress,
-        (err, signature) => {
-          if (err) return reject(err);
-          return resolve({ publicAddress, signature });
-        }
-      )
-    );
-  };
-
-  handleSignup(publicAddress) {
-    const {data} = axios.post('/api/users', {publicAddress: publicAddress});
-    return data;
+  async initializeWeb3() {
+    await this.props.getProvider();
+    const { publicAddress, web3 } = this.props;
+    this.setState({ loading: true });
   }
 
   render() {
@@ -93,4 +59,18 @@ class Login extends Component {
   }
 }
 
-export default Login;
+const mapStateToProps = state => ({
+  publicAddress: state.web3.publicAddress,
+  web3: state.web3.provider,
+  user: state.user.current,
+  authToken: state.user.authToken
+})
+
+const mapDispatchToProps = dispatch => ({
+  getProvider: () => dispatch(getProvider()),
+  fetchUser: publicAddress => dispatch(fetchUser(publicAddress)),
+  postUser: publicAddress => dispatch(postUser(publicAddress)),
+  handleAuthenticate: signed => dispatch(handleAuthenticate(signed))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

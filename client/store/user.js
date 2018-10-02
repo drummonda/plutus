@@ -6,17 +6,25 @@ import history from '../history'
  */
 const GET_USER = 'GET_USER'
 const REMOVE_USER = 'REMOVE_USER'
+const AUTHENTICATE_USER = 'AUTHENTICATE_USER'
 
 /**
  * INITIAL STATE
  */
-const defaultUser = {}
+const defaultUser = {
+  current: {},
+  authToken: {}
+}
 
 /**
  * ACTION CREATORS
  */
 const getUser = user => ({type: GET_USER, user})
 const removeUser = () => ({type: REMOVE_USER})
+const authenticateUser = token => ({
+  type: AUTHENTICATE_USER,
+  token
+})
 
 /**
  * THUNK CREATORS
@@ -56,15 +64,58 @@ export const logout = () => async dispatch => {
   }
 }
 
+export const fetchUser = publicAddress => async dispatch => {
+  try {
+    const { data } = await axios.get(`/api/users?publicAddress=${publicAddress}`);
+    if(data) {
+      const user = data[0];
+      dispatch(getUser(user));
+      return true;
+    } else {
+      return false;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export const postUser = publicAddress => async dispatch => {
+  try {
+    const { data } = await axios.post('/api/users', { publicAddress: publicAddress });
+    const user = data[0];
+    dispatch(getUser(user));
+    return user;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export const handleAuthenticate = signed => async dispatch => {
+  try {
+    const { publicAddress, signature } = signed;
+    const { data } = await axios.post('/auth/web3', { publicAddress, signature });
+    dispatch(authenticateUser(data));
+  } catch (err) {
+    window.alert('Authentication failed!')
+    console.error(err);
+  }
+}
+
 /**
  * REDUCER
  */
 export default function(state = defaultUser, action) {
   switch (action.type) {
+
     case GET_USER:
-      return action.user
+      return {...state, current: action.user};
+
     case REMOVE_USER:
       return defaultUser
+
+    case AUTHENTICATE_USER:
+      return {...state, authToken: action.token};
+
     default:
       return state
   }
