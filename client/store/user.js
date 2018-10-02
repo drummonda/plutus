@@ -1,11 +1,13 @@
 import axios from 'axios'
 import history from '../history'
+import { handleSignMessage } from './utils';
 
 /**
  * ACTION TYPES
  */
 const GET_USER = 'GET_USER'
 const REMOVE_USER = 'REMOVE_USER'
+const AUTHENTICATE_USER = 'AUTHENTICATE_USER'
 
 /**
  * INITIAL STATE
@@ -53,6 +55,32 @@ export const logout = () => async dispatch => {
     history.push('/login')
   } catch (err) {
     console.error(err)
+  }
+}
+
+export const fetchUser = publicAddress => async dispatch => {
+  try {
+    const { data } = await axios.get(`/api/users?publicAddress=${publicAddress}`);
+    if(data) {
+      const user = data[0];
+      dispatch(getUser(user));
+      return true;
+    } else {
+      return false;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export const postUser = publicAddress => async dispatch => {
+  try {
+    const { data } = await axios.post('/api/users', { publicAddress: publicAddress });
+    const user = data[0];
+    dispatch(getUser(user));
+    return user;
+  } catch (err) {
+    console.error(err);
   }
 }
 

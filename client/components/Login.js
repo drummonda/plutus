@@ -1,9 +1,8 @@
-import React, { Component } from 'react';
-import Web3 from 'web3';
-import axios from 'axios';
-import {Button} from 'semantic-ui-react'
-
-let web3 = null;
+import React, { Component } from 'react'
+import axios from 'axios'
+import { connect } from 'react-redux'
+import { Button } from 'semantic-ui-react'
+import { getProvider, fetchUser, postUser } from '../store'
 
 class Login extends Component {
 
@@ -15,7 +14,6 @@ class Login extends Component {
     this.handleAuthenticate = this.handleAuthenticate.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.handleSignMessage = this.handleSignMessage.bind(this);
-    this.handleSignup = this.handleSignup.bind(this);
   }
 
   async handleAuthenticate({ publicAddress, signature }) {
@@ -26,33 +24,16 @@ class Login extends Component {
   async handleClick() {
     const { onLoggedIn } = this.props;
 
-    if (!window.web3) {
-      window.alert('Please install MetaMask first.');
-      return;
-    }
-    if (!web3) {
-      // We don't know window.web3 version, so we use our own instance of web3
-      // with provider given by window.web3
-      web3 = new Web3(window.web3.currentProvider);
-    }
-    const coinbase = await web3.eth.getCoinbase((err, coinbase) => {
-      return coinbase || err;
-    })
-    if (!coinbase) {
-      window.alert('Please activate MetaMask first.');
-      return;
-    }
-    const publicAddress = coinbase;
+    await this.props.getProvider();
+    const { publicAddress, web3 } = this.props;
     this.setState({ loading: true });
 
     try {
-      // Look if user with current publicAddress is already present on backend
-      const {data} = await axios.get(`/api/users?publicAddress=${publicAddress}`)
+      const userExists = await this.props.fetchUser(publicAddress);
+      const addr = await (userExists ? this.props.user : this.props.postUser(publicAddress));
+      console.log('addr', addr);
 
-
-      const addr = await (data.length ? data[0] : this.handleSignup(publicAddress));
-
-      const signed = await this.handleSignMessage(addr);
+      const signed = await this.handleSignMessage(web3, addr);
       const auth = await this.handleAuthenticate(signed);
       onLoggedIn(auth);
 
@@ -62,7 +43,8 @@ class Login extends Component {
     }
   }
 
-  handleSignMessage({ publicAddress, nonce }) {
+  handleSignMessage(web3, user) {
+    const { nonce, publicAddress } = user;
     return new Promise((resolve, reject) =>
       web3.eth.personal.sign(
         web3.utils.fromUtf8(`I am signing my one-time nonce: ${nonce}`),
@@ -74,11 +56,6 @@ class Login extends Component {
       )
     );
   };
-
-  async handleSignup(publicAddress) {
-    const { data } = await axios.post('/api/users', { publicAddress: publicAddress });
-    return data;
-  }
 
   render() {
     const { loading } = this.state;
@@ -92,4 +69,16 @@ class Login extends Component {
   }
 }
 
-export default Login;
+const mapStateToProps = state => ({
+  publicAddress: state.web3.publicAddress,
+  web3: state.web3.provider,
+  user: state.user
+})
+
+const mapDispatchToProps = dispatch => ({
+  getProvider: () => dispatch(getProvider()),
+  fetchUser: publicAddress => dispatch(fetchUser(publicAddress)),
+  postUser: publicAddress => dispatch(postUser(publicAddress))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
