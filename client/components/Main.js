@@ -11,7 +11,6 @@ class Main extends Component {
     super(props);
     this.handleLoggedIn = this.handleLoggedIn.bind(this);
     this.handleLoggedOut = this.handleLoggedOut.bind(this);
-    this.handleSetUser = this.handleSetUser.bind(this);
   }
 
   componentWillMount() {

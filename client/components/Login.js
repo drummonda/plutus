@@ -52,7 +52,6 @@ class Login extends Component {
 
       const addr = await (data.length ? data[0] : this.handleSignup(publicAddress));
 
-
       const signed = await this.handleSignMessage(addr);
       const auth = await this.handleAuthenticate(signed);
       onLoggedIn(auth);
@@ -76,8 +75,8 @@ class Login extends Component {
     );
   };
 
-  handleSignup(publicAddress) {
-    const {data} = axios.post('/api/users', {publicAddress: publicAddress});
+  async handleSignup(publicAddress) {
+    const { data } = await axios.post('/api/users', { publicAddress: publicAddress });
     return data;
   }
 

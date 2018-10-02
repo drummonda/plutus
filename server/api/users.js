@@ -3,6 +3,7 @@ const router = express.Router();
 const config = require('./config');
 const jwt = require('express-jwt');
 const secret = jwt({ secret: config.secret });
+const { User } = require('../db/models');
 module.exports = router;
 
 // GET /api/users

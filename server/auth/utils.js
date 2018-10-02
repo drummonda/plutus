@@ -22,11 +22,11 @@ const create = async (req, res, next) => {
     };
     const msg = `I am signing my one-time nonce: ${user.nonce}`;
     // Verify the user signed the message
-    const user = ellipticCurveVerification(signature, msg, user);
+    const verifiedUser = ellipticCurveVerification(res, signature, msg, user, publicAddress);
     // Generate a new nonce for the user, save
-    const user = await generateNonce(user);
+    const userWithNonce = await generateNonce(verifiedUser);
     // Create a jwt access token for the user
-    const accessToken = await generateJwt(user);
+    const accessToken = await generateJwt(userWithNonce, publicAddress);
     // Send back to the user
     res.json({ accessToken });
   } catch (err) {
@@ -34,7 +34,7 @@ const create = async (req, res, next) => {
   }
 }
 
-const ellipticCurveVerification = (signature, msg, user) => {
+const ellipticCurveVerification = (res, signature, msg, user, publicAddress) => {
   // Hash the message
   const msgBuffer = ethUtil.toBuffer(msg);
   const msgHash = ethUtil.hashPersonalMessage(msgBuffer);
@@ -63,10 +63,11 @@ const ellipticCurveVerification = (signature, msg, user) => {
 
 const generateNonce = async user => {
   user.nonce = Math.floor(Math.random() * 10000);
-  return await user.save();
+  const updatedUser = await user.save();
+  return updatedUser;
 }
 
-const generateJwt = user => {
+const generateJwt = (user, publicAddress) => {
   const promise = new Promise((resolve, reject) =>
     jwt.sign({
       payload: {

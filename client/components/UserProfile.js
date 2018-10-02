@@ -68,7 +68,7 @@ class UserProfile extends Component {
     const { auth: { accessToken }, onLoggedOut } = this.props;
     const { payload: { publicAddress } } = jwtDecode(accessToken);
     const { loading, user, username } = this.state;
-
+    const displayUserName = username ? username : '';
     const myUsername = user && user.username;
 
     return (
@@ -85,7 +85,11 @@ class UserProfile extends Component {
         <div className="change-username">
           <Label htmlFor="username">Change username: </Label>
           <br/>
-          <Input name="username" onChange={this.handleChange} value={username}/>
+          <Input
+            name="username"
+            onChange={this.handleChange}
+            value={displayUserName}
+          />
           <Button primary disabled={loading} onClick={this.handleSubmit}>
             Submit
           </Button>

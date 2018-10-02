@@ -1,0 +1,68 @@
+body {
+  font-family: sans-serif;
+  background: linear-gradient(to bottom, #cdeb8b 0%,#cdeb8b 100%);
+}
+
+a {
+  text-decoration: none;
+}
+
+label {
+  display: block;
+}
+
+nav a {
+  display: inline-block;
+  margin: 1em;
+}
+
+form div {
+  margin: 1em;
+  display: inline-block;
+}
+
+.App {
+  margin: 3% 3% 3% 3%;
+}
+
+.blockies {
+  font-size: 2em;
+
+}
+
+.profile {
+  display: flex;
+  flex-flow: wrap column;
+  font-size: 1.5em;
+  background: linear-gradient(to bottom, #cdeb8b 0%,#cdeb8b 100%);
+}
+
+.change-username {
+  margin: 3% 0% 3% 0%;
+}
+
+.login-prompt {
+  font-size: 1.5em;
+}
+
+.mint-tokens {
+  display: flex;
+  flex-flow: wrap column;
+  margin: 3% 0% 3% 0%;
+  width: 50%;
+  justify-content: space-between;
+}
+
+.token-list {
+  display: flex;
+  flex-flow: wrap column;
+  margin: 2%;
+}
+
+.login {
+  margin: 1% 0% 1% 0%;
+}
+
+.user-logout {
+  margin: 3%;
+}
