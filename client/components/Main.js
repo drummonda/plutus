@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-
-import Login from './Login';
-import UserProfile from './UserProfile';
+import React, { Component } from 'react'
+import Login from './Login'
+import UserProfile from './UserProfile'
+import VerticalMenu from './VerticalMenu'
 
 const LS_KEY = 'mm-login:auth';
 
@@ -34,6 +34,7 @@ class Main extends Component {
     const { auth } = this.state;
     return (
       <div className="App">
+        <VerticalMenu />
         <header className="App-header">
           <h1 className="App-title">Welcome to Plutus</h1>
         </header>
