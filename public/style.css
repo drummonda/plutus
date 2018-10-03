@@ -54,6 +54,15 @@ form div {
   height: 15%;
 }
 
+#logo {
+  font-size: 1.4em;
+}
+
+#right-menu {
+  padding-right: 2%;
+  font-size: 1.2em;
+}
+
 #routes {
   margin: 3%;
 }
