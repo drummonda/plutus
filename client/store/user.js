@@ -1,5 +1,6 @@
 import axios from 'axios'
 import history from '../history'
+const LS_KEY = 'mm-login:auth';
 
 /**
  * ACTION TYPES
@@ -15,7 +16,8 @@ const AUTHENTICATE_USER = 'AUTHENTICATE_USER'
  */
 const defaultUser = {
   current: {},
-  authToken: {}
+  authToken: {},
+  loggedIn: false,
 }
 
 /**
@@ -56,14 +58,20 @@ export const auth = (email, password, method) => async dispatch => {
   }
 }
 
-export const logout = () => async dispatch => {
+export const logout = () => dispatch => {
   try {
-    await axios.post('/auth/logout')
+    localStorage.removeItem(LS_KEY)
+    history.push('/')
     dispatch(removeUser())
-    history.push('/login')
   } catch (err) {
     console.error(err)
   }
+}
+
+export const login = auth => dispatch => {
+  localStorage.setItem(LS_KEY, JSON.stringify(auth))
+  dispatch(authenticateUser(auth))
+  history.push('/home')
 }
 
 export const fetchUser = publicAddress => async dispatch => {
@@ -95,11 +103,21 @@ export const postUser = publicAddress => async dispatch => {
 export const handleAuthenticate = signed => async dispatch => {
   try {
     const { publicAddress, signature } = signed;
-    const { data } = await axios.post('/auth/web3', { publicAddress, signature });
-    dispatch(authenticateUser(data));
+    const { data: { accessToken }} = await axios.post('/auth/web3', { publicAddress, signature });
+    dispatch(authenticateUser(accessToken));
+    return accessToken
   } catch (err) {
     window.alert('Authentication failed!')
     console.error(err);
+  }
+}
+
+export const fetchAuthToken = () => dispatch => {
+  const authToken = localStorage.getItem(LS_KEY);
+  if(!authToken) {
+    return
+  } else {
+    dispatch(authenticateUser(authToken));
   }
 }
 
@@ -116,7 +134,7 @@ export default function(state = defaultUser, action) {
       return defaultUser
 
     case AUTHENTICATE_USER:
-      return {...state, authToken: action.token};
+      return {...state, authToken: action.token, loggedIn: true};
 
     default:
       return state
