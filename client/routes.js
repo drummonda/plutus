@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { withRouter, Route, Switch } from 'react-router-dom'
+import { Route, Switch } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Main, LoginPage } from './components'
 import { fetchAuthToken, fetchUser, getProvider, login } from './store'
@@ -34,15 +34,18 @@ class Routes extends Component {
     const { loggedIn } = this.props
     return (
       <div id='routes'>
+        <Switch>
         {loggedIn ?
           <Switch>
-            <Route path="/" component={Main} />
-            <Route path="/home" component={Main} />
+            <Route exact path="/" component={Main}/>
+            <Route exact path="/home" component={Main}/>
           </Switch>
           :
           <Switch>
-            <Route path="/" component={LoginPage} />
+            <Route exact path="/" component={LoginPage} />
+            <Route exact path="/login" component={LoginPage} />
           </Switch>}
+        </Switch>
       </div>
     )
   }
