@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import Login from './Login'
 import UserProfile from './UserProfile'
-import VerticalMenu from './VerticalMenu'
+import { connect } from 'react-redux'
+import { logout } from '../store'
 
 const LS_KEY = 'mm-login:auth';
 
@@ -18,23 +19,10 @@ class Main extends Component {
     this.setState({ auth });
   }
 
-  // Grab the auth token and pass it to localStorage
-  handleLoggedIn(auth) {
-    localStorage.setItem(LS_KEY, JSON.stringify(auth));
-    this.setState({ auth });
-  }
-
-  // Remove the auth token from localStorage
-  handleLoggedOut() {
-    localStorage.removeItem(LS_KEY);
-    this.setState({ auth: undefined });
-  }
-
   render() {
     const { auth } = this.state;
     return (
       <div className="App">
-        <VerticalMenu />
         <header className="App-header">
           <h1 className="App-title">Welcome to Plutus</h1>
         </header>
@@ -58,4 +46,12 @@ class Main extends Component {
   }
 }
 
-export default Main;
+const mapStateToProps = state => ({
+
+})
+
+const mapDispatchToProps = dispatch => ({
+  logout: () => dispatch(logout()),
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(Main);

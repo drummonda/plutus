@@ -1,8 +1,10 @@
-import React, { Component } from 'react';
-import Blockies from 'react-blockies';
-import jwtDecode from 'jwt-decode';
-import {Button, Input, Label} from 'semantic-ui-react';
-import axios from 'axios';
+import React, { Component } from 'react'
+import Blockies from 'react-blockies'
+import jwtDecode from 'jwt-decode'
+import { Button, Input, Label } from 'semantic-ui-react'
+import { connect } from 'react-redux'
+import axios from 'axios'
+import { logout } from '../store'
 
 class UserProfile extends Component {
 
@@ -13,13 +15,13 @@ class UserProfile extends Component {
       user: null,
       username: '',
     };
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this)
+    this.handleChange = this.handleChange.bind(this)
   }
 
   async componentDidMount() {
-    const { auth: { accessToken } } = this.props;
-    const { payload: { id } } = await jwtDecode(accessToken);
+    const { auth: { accessToken } } = this.props
+    const { payload: { id } } = await jwtDecode(accessToken)
     try {
       // set the headers for authorization
       const { data } = await axios.get(`/api/users/${id}`,{
@@ -32,23 +34,23 @@ class UserProfile extends Component {
         username: data.username,
       });
     } catch (err) {
-      window.alert(err);
+      window.alert(err)
     }
   }
 
   handleChange({ target: { value } }) {
-    this.setState({ username: value });
+    this.setState({ username: value })
   };
 
   async handleSubmit({ target }) {
-    const { auth: { accessToken } } = this.props;
-    const { user, username } = this.state;
-    this.setState({ loading: true });
-    // Set the headers for authorization
+    const { authToken } = this.props
+    const { user, username } = this.state
+    this.setState({ loading: true })
+
     try {
       const { data } = await axios.patch(`/api/users/${user.id}`, {username}, {
         headers: {
-          "Authorization": `Bearer ${accessToken}`
+          "Authorization": `Bearer ${authToken}`
         }
       });
 
@@ -65,8 +67,8 @@ class UserProfile extends Component {
   };
 
   render() {
-    const { auth: { accessToken }, onLoggedOut } = this.props;
-    const { payload: { publicAddress } } = jwtDecode(accessToken);
+    const { authToken } = this.props
+    const { payload: { publicAddress } } = jwtDecode(authToken);
     const { loading, user, username } = this.state;
     const displayUserName = username ? username : '';
     const myUsername = user && user.username;
@@ -95,10 +97,18 @@ class UserProfile extends Component {
           </Button>
         </div>
 
-        <Button className='logout-button' color='red' onClick={onLoggedOut}>Don't u dare Logout</Button>
+        <Button className='logout-button' color='red' onClick={this.props.logout}>Don't u dare Logout</Button>
       </div>
     );
   }
 }
 
-export default UserProfile;
+const mapStateToProps = state => ({
+  authToken: state.user.authToken
+})
+
+const mapDispatchToProps = dispatch => ({
+  logout: () => dispatch(logout()),
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserProfile)

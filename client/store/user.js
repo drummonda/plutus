@@ -1,5 +1,6 @@
 import axios from 'axios'
 import history from '../history'
+const LS_KEY = 'mm-login:auth';
 
 /**
  * ACTION TYPES
@@ -15,7 +16,8 @@ const AUTHENTICATE_USER = 'AUTHENTICATE_USER'
  */
 const defaultUser = {
   current: {},
-  authToken: {}
+  authToken: {},
+  loggedIn: false,
 }
 
 /**
@@ -56,11 +58,20 @@ export const auth = (email, password, method) => async dispatch => {
   }
 }
 
-export const logout = () => async dispatch => {
+export const logout = () => dispatch => {
   try {
-    await axios.post('/auth/logout')
+    localStorage.removeItem(LS_KEY)
+    history.push('/')
     dispatch(removeUser())
-    history.push('/login')
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+export const login = auth => dispatch => {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(auth))
+    dispatch(authenticateUser(auth))
   } catch (err) {
     console.error(err)
   }
@@ -116,7 +127,7 @@ export default function(state = defaultUser, action) {
       return defaultUser
 
     case AUTHENTICATE_USER:
-      return {...state, authToken: action.token};
+      return {...state, authToken: action.token, loggedIn: true};
 
     default:
       return state

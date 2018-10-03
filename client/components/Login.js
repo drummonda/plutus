@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import { connect } from 'react-redux'
 import { Button } from 'semantic-ui-react'
-import { getProvider, fetchUser, postUser, handleAuthenticate } from '../store'
+import { getProvider, fetchUser, postUser, handleAuthenticate, login } from '../store'
 import { handleSignMessage } from '../utils'
 
 class Login extends Component {
@@ -16,8 +16,6 @@ class Login extends Component {
   }
 
   async handleLogin() {
-    const { onLoggedIn } = this.props;
-
     try {
       // First, grab the web3 provider
       this.initializeWeb3();
@@ -34,7 +32,7 @@ class Login extends Component {
       const { authToken } = this.props;
 
       // Store the token and complete login
-      onLoggedIn(authToken);
+      this.props.login(authToken);
 
     } catch (err) {
       window.alert(err.message);
@@ -72,7 +70,8 @@ const mapDispatchToProps = dispatch => ({
   getProvider: () => dispatch(getProvider()),
   fetchUser: publicAddress => dispatch(fetchUser(publicAddress)),
   postUser: publicAddress => dispatch(postUser(publicAddress)),
-  handleAuthenticate: signed => dispatch(handleAuthenticate(signed))
+  handleAuthenticate: signed => dispatch(handleAuthenticate(signed)),
+  login: auth => dispatch(login(auth))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

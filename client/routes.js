@@ -1,12 +1,23 @@
 import React, { Component } from 'react'
 import { withRouter, Route, Switch } from 'react-router-dom'
-import { Main } from './components'
+import { connect } from 'react-redux'
+import { Main, LoginPage } from './components'
 
-export default class Routes extends Component {
+class Routes extends Component {
 
   render() {
+    const { loggedIn } = this.props
     return (
-      <Route path="/" component={Main} />
+      loggedIn ?
+        <Route path="/" component={Main} />
+        :
+        <Route path="/" component={LoginPage} />
     )
   }
 }
+
+const mapStateToProps = state => ({
+  user: state.user.current
+})
+
+export default connect(mapStateToProps, null)(Routes)

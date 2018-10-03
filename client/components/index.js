@@ -7,3 +7,5 @@
 // export {default as UserHome} from './user-home'
 // export {default as Login} from './Login'
 export { default as Main } from './Main'
+export { default as Navbar } from './Navbar'
+export { default as LoginPage } from './LoginPage'
