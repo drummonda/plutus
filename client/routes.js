@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { withRouter, Route, Switch } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Main, LoginPage } from './components'
-import { fetchAuthToken, getProvider, login } from './store'
+import { fetchAuthToken, fetchUser, getProvider, login } from './store'
 const LS_KEY = 'mm-login:auth';
 
 class Routes extends Component {
@@ -58,7 +58,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   login: token => dispatch(login(token)),
   fetchAuthToken: () => dispatch(fetchAuthToken()),
-  getProvider: () => dispatch(getProvider())
+  getProvider: () => dispatch(getProvider()),
+  fetchUser: publicAddress => dispatch(fetchUser(publicAddress))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Routes)
