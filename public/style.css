@@ -1,6 +1,7 @@
 body {
-  font-family: sans-serif;
-  background: linear-gradient(to bottom, #cdeb8b 0%,#cdeb8b 100%);
+  background-color: #4f5b66 !important;
+  color: white !important;
+  font-family: 'Rubik', sans-serif !important;
 }
 
 a {
@@ -45,24 +46,23 @@ form div {
   font-size: 1.5em;
 }
 
-.mint-tokens {
-  display: flex;
-  flex-flow: wrap column;
-  margin: 3% 0% 3% 0%;
-  width: 50%;
-  justify-content: space-between;
-}
-
-.token-list {
-  display: flex;
-  flex-flow: wrap column;
-  margin: 2%;
-}
-
 .login {
   margin: 1% 0% 1% 0%;
 }
 
-.user-logout {
+.navbar {
+  height: 15%;
+}
+
+#logo {
+  font-size: 1.4em;
+}
+
+#right-menu {
+  padding-right: 2%;
+  font-size: 1.2em;
+}
+
+#routes {
   margin: 3%;
 }

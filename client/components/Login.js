@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import { connect } from 'react-redux'
 import { Button } from 'semantic-ui-react'
-import { getProvider, fetchUser, postUser, handleAuthenticate } from '../store'
+import { getProvider, fetchUser, postUser, handleAuthenticate, login } from '../store'
 import { handleSignMessage } from '../utils'
 
 class Login extends Component {
@@ -16,11 +16,10 @@ class Login extends Component {
   }
 
   async handleLogin() {
-    const { onLoggedIn } = this.props;
-
     try {
       // First, grab the web3 provider
-      this.initializeWeb3();
+      this.setState({ loading: true });
+      const { publicAddress, web3 } = this.props;
 
       // Does the user exist? If not, create one
       const userExists = await this.props.fetchUser(publicAddress);
@@ -28,25 +27,19 @@ class Login extends Component {
 
       // Grab the user's signed message from metamask
       const signed = await handleSignMessage(web3, addr);
+      console.log('signed', signed);
 
       // Generate a jwt authentication token
-      await this.props.handleAuthenticate(signed);
-      const { authToken } = this.props;
+      const authToken = await this.props.handleAuthenticate(signed);
 
       // Store the token and complete login
-      onLoggedIn(authToken);
+      this.props.login(authToken);
 
     } catch (err) {
       window.alert(err.message);
       console.error(err);
       this.setState({ loading: false });
     }
-  }
-
-  async initializeWeb3() {
-    await this.props.getProvider();
-    const { publicAddress, web3 } = this.props;
-    this.setState({ loading: true });
   }
 
   render() {
@@ -72,7 +65,8 @@ const mapDispatchToProps = dispatch => ({
   getProvider: () => dispatch(getProvider()),
   fetchUser: publicAddress => dispatch(fetchUser(publicAddress)),
   postUser: publicAddress => dispatch(postUser(publicAddress)),
-  handleAuthenticate: signed => dispatch(handleAuthenticate(signed))
+  handleAuthenticate: signed => dispatch(handleAuthenticate(signed)),
+  login: auth => dispatch(login(auth))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);
