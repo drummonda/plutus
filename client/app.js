@@ -5,7 +5,7 @@ import { Navbar } from './components'
 
 const App = () => {
   return (
-    <div id='main'>
+    <div>
       <Navbar />
       <Routes />
     </div>

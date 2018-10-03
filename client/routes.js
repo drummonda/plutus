@@ -8,10 +8,12 @@ class Routes extends Component {
   render() {
     const { loggedIn } = this.props
     return (
-      loggedIn ?
-        <Route path="/" component={Main} />
-        :
-        <Route path="/" component={LoginPage} />
+      <div id='routes'>
+        loggedIn ?
+          <Route path="/" component={Main} />
+          :
+          <Route path="/" component={LoginPage} />
+      </div>
     )
   }
 }

@@ -1,7 +1,7 @@
 body {
   background-color: #4f5b66 !important;
   color: white !important;
-  font-family: 'Roboto', sans-serif !important;
+  font-family: 'Rubik', sans-serif !important;
 }
 
 a {
@@ -54,3 +54,6 @@ form div {
   height: 15%;
 }
 
+#routes {
+  margin: 3%;
+}
