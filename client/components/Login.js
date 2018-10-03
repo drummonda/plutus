@@ -18,7 +18,8 @@ class Login extends Component {
   async handleLogin() {
     try {
       // First, grab the web3 provider
-      this.initializeWeb3();
+      this.setState({ loading: true });
+      const { publicAddress, web3 } = this.props;
 
       // Does the user exist? If not, create one
       const userExists = await this.props.fetchUser(publicAddress);
@@ -26,10 +27,10 @@ class Login extends Component {
 
       // Grab the user's signed message from metamask
       const signed = await handleSignMessage(web3, addr);
+      console.log('signed', signed);
 
       // Generate a jwt authentication token
-      await this.props.handleAuthenticate(signed);
-      const { authToken } = this.props;
+      const authToken = await this.props.handleAuthenticate(signed);
 
       // Store the token and complete login
       this.props.login(authToken);
@@ -39,12 +40,6 @@ class Login extends Component {
       console.error(err);
       this.setState({ loading: false });
     }
-  }
-
-  async initializeWeb3() {
-    await this.props.getProvider();
-    const { publicAddress, web3 } = this.props;
-    this.setState({ loading: true });
   }
 
   render() {

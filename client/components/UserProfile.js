@@ -20,13 +20,13 @@ class UserProfile extends Component {
   }
 
   async componentDidMount() {
-    const { auth: { accessToken } } = this.props
-    const { payload: { id } } = await jwtDecode(accessToken)
+    const { authToken } = this.props
+    const { payload: { id } } = await jwtDecode(authToken)
     try {
       // set the headers for authorization
       const { data } = await axios.get(`/api/users/${id}`,{
         headers: {
-          "Authorization": `Bearer ${accessToken}`
+          "Authorization": `Bearer ${authToken}`
         }
       });
       this.setState({

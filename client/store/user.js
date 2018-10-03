@@ -69,12 +69,9 @@ export const logout = () => dispatch => {
 }
 
 export const login = auth => dispatch => {
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify(auth))
-    dispatch(authenticateUser(auth))
-  } catch (err) {
-    console.error(err)
-  }
+  localStorage.setItem(LS_KEY, JSON.stringify(auth))
+  dispatch(authenticateUser(auth))
+  history.push('/home')
 }
 
 export const fetchUser = publicAddress => async dispatch => {
@@ -106,11 +103,21 @@ export const postUser = publicAddress => async dispatch => {
 export const handleAuthenticate = signed => async dispatch => {
   try {
     const { publicAddress, signature } = signed;
-    const { data } = await axios.post('/auth/web3', { publicAddress, signature });
-    dispatch(authenticateUser(data));
+    const { data: { accessToken }} = await axios.post('/auth/web3', { publicAddress, signature });
+    dispatch(authenticateUser(accessToken));
+    return accessToken
   } catch (err) {
     window.alert('Authentication failed!')
     console.error(err);
+  }
+}
+
+export const fetchAuthToken = () => dispatch => {
+  const authToken = localStorage.getItem(LS_KEY);
+  if(!authToken) {
+    return
+  } else {
+    dispatch(authenticateUser(authToken));
   }
 }
 
