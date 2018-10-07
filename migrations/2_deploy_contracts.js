@@ -9,12 +9,12 @@ module.exports = async (deployer, network, accounts) => {
   const wallet = accounts[1];
 
   const PeerTokenDeployed = await deployer.deploy(PeerToken);
-  const PeerTokenCrowdsaleDeployed = await deployer.deploy(
-                                          PeerTokenCrowdsale,
-                                          openingTime,
-                                          closingTime,
-                                          rate,
-                                          wallet,
-                                          PeerTokenDeployed.address
-                                      );
+  await deployer.deploy(
+                        PeerTokenCrowdsale,
+                        openingTime,
+                        closingTime,
+                        rate,
+                        wallet,
+                        PeerTokenDeployed.address
+                    );
 }

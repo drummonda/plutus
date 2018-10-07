@@ -23,9 +23,7 @@ class Routes extends Component {
     const { publicAddress } = this.props
     if(authToken) {
       const userReceived = await this.props.fetchUser(publicAddress)
-      console.log('user received', userReceived)
       const user = userReceived ? this.props.user : null
-      console.log('user', user)
       if(user) this.props.login(authToken)
     }
   }

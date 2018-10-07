@@ -46,14 +46,14 @@ export const getProvider = () => async dispatch => {
     const coinbase = await web3.eth.getCoinbase((err, coinbase) => {
       return coinbase || err;
     })
-    if (!coinbase) {
-      window.alert('Please activate MetaMask first.');
-      return;
-    }
-    const publicAddress = coinbase;
-    dispatch(setProvider(web3));
-    dispatch(setPublicAddress(publicAddress));
-    return { web3, publicAddress };
+    // if (!coinbase) {
+    //   window.alert('Please activate MetaMask first.');
+    //   return;
+    // }
+    // const publicAddress = coinbase;
+    // dispatch(setProvider(web3));
+    // dispatch(setPublicAddress(publicAddress));
+    // return { web3, publicAddress };
   } catch (err) {
     console.error(err)
   }
