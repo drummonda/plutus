@@ -9,13 +9,13 @@
   "scripts": {
     "build-client": "webpack",
     "build-client-watch": "webpack -w",
-    "compile-contracts":"node scripts/compile",
-    "deploy-contracts":"node scripts/deploy",
-    "run-contract-example":"node scripts/example",
+    "compile-contracts": "node scripts/compile",
+    "deploy-contracts": "PROVIDER=8545 node scripts/deploy",
+    "contract-example": "node scripts/example",
     "lint": "eslint ./ --ignore-path .gitignore",
     "prettify": "prettier --write \"**/*.{js,jsx,json,css,scss,md}\"",
     "postinstall": "touch secrets.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha",
     "start": "node server",
     "start-dev": "NODE_ENV='development' npm run build-client-watch & npm run start-server",
     "start-server": "nodemon server -e html,js,scss --ignore public --ignore client"
@@ -42,6 +42,7 @@
   },
   "homepage": "https://github.com/drummonda/plutus#readme",
   "dependencies": {
+    "assert": "^1.4.1",
     "axios": "^0.18.0",
     "compression": "^1.7.3",
     "ethereumjs-util": "^5.2.0",
@@ -51,6 +52,7 @@
     "history": "^4.7.2",
     "jsonwebtoken": "^8.3.0",
     "jwt-decode": "^2.2.0",
+    "mocha": "^5.2.0",
     "morgan": "^1.9.1",
     "openzeppelin-solidity": "^1.12.0",
     "pg": "^7.4.3",

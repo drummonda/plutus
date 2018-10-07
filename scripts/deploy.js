@@ -1,14 +1,15 @@
 // Grab the web3 module for interacting with smart contracts
 const Web3 = require("web3");
+const ganache = require("ganache-cli");
 
 // Interface and bytcode object from compiled contract
 const { interface, bytecode } = require('./compile');
 
 // List of 12 words to connect account
-const mnemonic = "enlist occur office animal slice crucial rescue bulk voice warrior dial net";
+const mnemonic = "effort exist inquiry divorce quarter earth faith simple erode lawn side congress";
 
 // Create a new instance of web3 with the correct provider
-const web3 = new Web3("http://localhost:8545");
+const web3 = new Web3(ganache.provider());
 
 // This function is used to deploy the contract
 const deploy = async () => {

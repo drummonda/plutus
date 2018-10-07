@@ -24,7 +24,7 @@ contract TodoList {
 
     function createTodo(string task) public {
         // create a todo and push it into the storage array
-        CreateTodo("new task", false);
+        emit CreateTodo("new task", false);
         uint id = todos.push(Todo(task, false)) - 1;
     }
 
