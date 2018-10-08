@@ -12,10 +12,9 @@ const getProvider = async () => {
   }
   coinbase = await web3.eth.getCoinbase((err, coinbase) => {
     return coinbase || err
-  })
+  });
 };
 
 getProvider()
 
 export default web3
-export coinbase

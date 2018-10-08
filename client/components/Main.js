@@ -2,8 +2,19 @@ import React, { Component } from 'react'
 import UserProfile from './UserProfile'
 import { connect } from 'react-redux'
 import { login, logout, fetchAuthToken, handleAuthenticate } from '../store'
+import web3 from '../web3/provider'
+import todolist from '../web3/contract'
 
 class Main extends Component {
+
+  async componentDidMount() {
+    const { provider } = this.props
+    const accounts = await web3.eth.getAccounts();
+    console.log("accounts", accounts);
+    await todolist.methods.createTodo("add frontend").send({
+      from: accounts[0]
+    });
+  }
 
   render() {
     return (
@@ -20,7 +31,8 @@ class Main extends Component {
 const mapStateToProps = state => ({
   authToken: state.user.authToken,
   publicAddress: state.web3.publicAddress,
-  user: state.user.current
+  user: state.user.current,
+  provider: state.web3.provider
 })
 
 const mapDispatchToProps = dispatch => ({
