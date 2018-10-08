@@ -48,6 +48,7 @@
     "ethereumjs-util": "^5.2.0",
     "express": "^4.16.3",
     "express-jwt": "^5.3.1",
+    "firebase": "^5.5.3",
     "ganache-cli": "^6.1.8",
     "history": "^4.7.2",
     "jsonwebtoken": "^8.3.0",
