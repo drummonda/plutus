@@ -77,7 +77,7 @@ export const login = auth => dispatch => {
 export const fetchUser = publicAddress => async dispatch => {
   try {
     const { data } = await axios.get(`/api/users?publicAddress=${publicAddress}`);
-    if(data) {
+    if(data.length) {
       const user = data[0];
       dispatch(getUser(user));
       return true;
@@ -92,9 +92,9 @@ export const fetchUser = publicAddress => async dispatch => {
 export const postUser = publicAddress => async dispatch => {
   try {
     const { data } = await axios.post('/api/users', { publicAddress: publicAddress });
-    const user = data[0];
-    dispatch(getUser(user));
-    return user;
+    console.log("this is data", data);
+    dispatch(getUser(data));
+    return data;
   } catch (err) {
     console.error(err);
   }

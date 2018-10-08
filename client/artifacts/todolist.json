@@ -1,0 +1,84 @@
+[
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "todoId",
+        "type": "uint256"
+      }
+    ],
+    "name": "returnTodo",
+    "outputs": [
+      {
+        "name": "task",
+        "type": "string"
+      },
+      {
+        "name": "completed",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "id",
+        "type": "uint256"
+      }
+    ],
+    "name": "completeTodo",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getTotalNumTodos",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "task",
+        "type": "string"
+      }
+    ],
+    "name": "createTodo",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "task",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "name": "complete",
+        "type": "bool"
+      }
+    ],
+    "name": "CreateTodo",
+    "type": "event"
+  }
+]
