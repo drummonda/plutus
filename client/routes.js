@@ -2,7 +2,9 @@ import React, { Component } from 'react'
 import { Route, Switch } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Main, LoginPage } from './components'
-import { fetchAuthToken, fetchUser, getProvider, login } from './store'
+import { fetchAuthToken, fetchUser, setProvider, setPublicAddress, login } from './store'
+import web3 from './web3/provider'
+
 const LS_KEY = 'mm-login:auth';
 
 class Routes extends Component {
@@ -14,8 +16,21 @@ class Routes extends Component {
   }
 
   async componentDidMount() {
-    await this.props.getProvider()
+    const coinbase = await this.getCoinbase();
+    this.props.setProvider(web3)
+    this.props.setPublicAddress(coinbase)
     await this.checkForToken()
+  }
+
+  async getCoinbase() {
+    const coinbase = await web3.eth.getCoinbase((err, coinbase) => {
+      return coinbase || err
+    })
+    if (!coinbase) {
+      window.alert('Please activate MetaMask first.')
+      return
+    }
+    return coinbase
   }
 
   async checkForToken() {
@@ -59,8 +74,9 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   login: token => dispatch(login(token)),
   fetchAuthToken: () => dispatch(fetchAuthToken()),
-  getProvider: () => dispatch(getProvider()),
-  fetchUser: publicAddress => dispatch(fetchUser(publicAddress))
+  setProvider: provider => dispatch(setProvider(provider)),
+  setPublicAddress: addr => dispatch(setPublicAddress(addr)),
+  fetchUser: addr => dispatch(fetchUser(addr))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Routes)

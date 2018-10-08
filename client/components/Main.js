@@ -2,18 +2,19 @@ import React, { Component } from 'react'
 import UserProfile from './UserProfile'
 import { connect } from 'react-redux'
 import { login, logout, fetchAuthToken, handleAuthenticate } from '../store'
-import web3 from '../web3/provider'
 import todolist from '../web3/contract'
 
 class Main extends Component {
 
   async componentDidMount() {
     const { provider } = this.props
-    const accounts = await web3.eth.getAccounts();
-    console.log("accounts", accounts);
+    const accounts = await provider.eth.getAccounts();
     await todolist.methods.createTodo("add frontend").send({
       from: accounts[0]
     });
+    const { task, completed } = await todolist.methods.returnTodo(0).call();
+    console.log("task", task);
+    console.log("completed", completed);
   }
 
   render() {

@@ -1,6 +1,6 @@
 import web3 from "./provider"
 
-const ADDRESS = "0x8b03A060b92Ed7b6689c342cb50779f85aB3c037";
+const ADDRESS = "0xC089532EC58e26Ac8ea5161635e5D5D6b576D264";
 const ABI = [
   {
     "constant": true,

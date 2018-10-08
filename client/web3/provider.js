@@ -1,20 +1,11 @@
 import Web3 from "web3"
 
-let web3, coinbase = null
+let web3 = null;
 
-const getProvider = async () => {
-  if (!window.web3) {
-    window.alert('Please install MetaMask first.')
-    return;
-  }
-  if (!web3) {
-    web3 = new Web3(window.web3.currentProvider)
-  }
-  coinbase = await web3.eth.getCoinbase((err, coinbase) => {
-    return coinbase || err
-  });
-};
-
-getProvider()
+if (!window.web3) {
+  window.alert('Please install MetaMask first.')
+} else {
+  web3 = new Web3(window.web3.currentProvider)
+}
 
 export default web3

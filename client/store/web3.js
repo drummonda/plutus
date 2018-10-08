@@ -20,12 +20,12 @@ const defaultWeb3 = {
 /**
  * ACTION CREATORS
  */
-const setProvider = provider => ({
+export const setProvider = provider => ({
   type: SET_PROVIDER,
   provider
 })
 
-const setPublicAddress = publicAddress => ({
+export const setPublicAddress = publicAddress => ({
   type: SET_PUBLIC_ADDRESS,
   publicAddress
 })

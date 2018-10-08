@@ -108,6 +108,7 @@
     "redux-devtools-extension": "^2.13.5",
     "solc": "^0.4.25",
     "tough-cookie": "^2.4.3",
+    "truffle-hdwallet-provider": "0.0.6",
     "tunnel-agent": "^0.6.0",
     "webpack-cli": "^3.1.2"
   }
