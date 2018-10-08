@@ -1,7 +1,6 @@
 const path = require("path");
 const fs = require("fs-extra");
 const solc = require("solc");
-const { addContractArtifact } = require("../server/firebase/api");
 const buildPath = path.resolve(__dirname, "..", "build");
 const contractsPath = path.resolve(__dirname, "..", "contracts");
 const artifactsPath = path.resolve(__dirname, "..", "client", "artifacts");
@@ -14,15 +13,15 @@ const compileContract = contract => {
   return compiledContract
 }
 
-const writeContractArtifact = async (compiledContract, ABI, contractName) => {
+const writeContractArtifact = (compiledContract, ABI, contractName) => {
   const fileName = `${contractName}.json`;
   const key = `:${contractName}`;
+  const contractObject = {name: contractName, ...compiledContract[key]};
   fs.outputJsonSync(
     path.resolve(buildPath, fileName),
-    compiledContract[key]
+    contractObject
   );
-  await addContractArtifact(contractName, ABI)
-  contractObjects = [...contractObjects, compiledContract[key]];
+  contractObjects = [...contractObjects, contractObject];
 }
 
 fs.removeSync(buildPath);
@@ -35,7 +34,7 @@ fs.readdirSync(contractsPath).forEach(async file => {
   const contract = fs.readFileSync(filePath, 'utf8');
   const compiledContract = compileContract(contract);
   const ABI = JSON.parse(compiledContract[`:${contractName}`].interface);
-  await writeContractArtifact(compiledContract, ABI, contractName);
+  writeContractArtifact(compiledContract, ABI, contractName);
 });
 
 module.exports = contractObjects;
