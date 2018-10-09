@@ -16,22 +16,19 @@ const compileContract = contract => {
 const writeContractArtifact = (compiledContract, ABI, contractName) => {
   const fileName = `${contractName}.json`;
   const key = `:${contractName}`;
+  const contractObject = {name: contractName, ...compiledContract[key]};
   fs.outputJsonSync(
     path.resolve(buildPath, fileName),
-    compiledContract[key]
+    contractObject
   );
-  fs.outputJsonSync(
-    path.resolve(artifactsPath, fileName),
-    ABI
-  );
-  contractObjects = [...contractObjects, compiledContract[key]];
+  contractObjects = [...contractObjects, contractObject];
 }
 
 fs.removeSync(buildPath);
 fs.ensureDirSync(buildPath);
 fs.ensureDirSync(artifactsPath);
 
-fs.readdirSync(contractsPath).forEach(file => {
+fs.readdirSync(contractsPath).forEach(async file => {
   const contractName = file.split('.').slice(0, 1)[0];
   const filePath = path.resolve(contractsPath, file);
   const contract = fs.readFileSync(filePath, 'utf8');

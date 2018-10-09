@@ -4,7 +4,7 @@ contract Multiply8 {
 
   /*--------------------- MULTIPLY ---------------------*/
 
-    function multiply(uint number) public returns (uint result) {
+    function multiply(uint number) public view returns (uint result) {
         result = number * 8;
     }
 
