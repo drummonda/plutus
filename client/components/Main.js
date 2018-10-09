@@ -1,20 +1,16 @@
 import React, { Component } from 'react'
 import UserProfile from './UserProfile'
 import { connect } from 'react-redux'
-import { login, logout, fetchAuthToken, handleAuthenticate } from '../store'
-import todolist from '../web3/contract'
+import { login, logout, fetchAuthToken } from '../store'
+import getContractArtifact from '../web3/contract'
 
 class Main extends Component {
 
   async componentDidMount() {
     const { provider } = this.props
-    const accounts = await provider.eth.getAccounts();
-    await todolist.methods.createTodo("add frontend").send({
-      from: accounts[0]
-    });
-    const { task, completed } = await todolist.methods.returnTodo(0).call();
-    console.log("task", task);
-    console.log("completed", completed);
+    const multiply8 = await getContractArtifact("Multiply8")
+    const fortyEight = await multiply8.methods.multiply(6).call()
+    console.log("Should be forty eighth", fortyEight)
   }
 
   render() {
