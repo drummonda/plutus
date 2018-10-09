@@ -7,10 +7,9 @@ import getContractArtifact from '../web3/contract'
 class Main extends Component {
 
   async componentDidMount() {
-    const { provider } = this.props
     const multiply8 = await getContractArtifact("Multiply8")
     const fortyEight = await multiply8.methods.multiply(6).call()
-    console.log("Should be forty eighth", fortyEight)
+    console.log("Should be forty eight", fortyEight)
   }
 
   render() {
