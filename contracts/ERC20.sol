@@ -1,17 +1,12 @@
 pragma solidity ^0.4.25;
 
-import './Owned.sol';
-
-contract ERC20 is Owned {
+contract ERC20 {
 
     /* -------------- Contract variables --------------*/
     string public name;
     string public symbol;
     uint8 public decimals = 18;
-
     uint256 public totalSupply;
-    uint256 public sellPrice;
-    uint256 public buyPrice;
 
     mapping (address => uint256) public balanceOf;
     mapping (address => mapping (address => uint256)) public allowance;
@@ -146,43 +141,6 @@ contract ERC20 is Owned {
         totalSupply -= _value;
         emit Burn(_from, _value);
         return true;
-    }
-
-
-
-    /* -------------- Mint tokens --------------*/
-    function mintToken (address target, uint256 mintedAmount) onlyOwner {
-        balanceOf[target] += mintedAmount;
-        totalSupply += mintedAmount;
-        emit Transfer(0, owner, mintedAmount);
-        emit Transfer(owner, target, mintedAmount);
-    }
-
-
-    /* -------------- Set prices --------------*/
-    function setPrices(uint256 newSellPrice, uint256 newBuyPrice) onlyOwner {
-        sellPrice = newSellPrice;
-        buyPrice = newBuyPrice;
-    }
-
-
-    /* -------------- Contract buys tokens --------------*/
-    function buy() payable returns (uint amount) {
-        amount = msg.value / buyPrice;
-        _transfer(this, msg.sender, amount);
-        return amount;
-    }
-
-
-    /* -------------- Contract sells tokens --------------*/
-    function sell(uint amount) returns (uint revenue) {
-        require(balanceOf[msg.sender] >= amount);
-        balanceOf[this] += amount;
-        balanceOf[msg.sender] -= amount;
-        revenue = amount * sellPrice;
-        msg.sender.transfer(revenue);
-        Transfer(msg.sender, this, amount);
-        return revenue;
     }
 
 }
