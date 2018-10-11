@@ -3,9 +3,9 @@ const ganache = require("ganache-cli");
 const Web3 = require("web3");
 
 const web3 = new Web3(ganache.provider());
-const { interface, bytecode } = require("../build/multiply8");
+const { interface, bytecode } = require("../build/Multiply8");
 
-let multiply8;
+let multiply8, accounts;
 
 beforeEach(async () => {
   accounts = await web3.eth.getAccounts();
@@ -21,7 +21,7 @@ describe("multiply8 contract", () => {
   });
 
   it("can multiply a number by 8", async () => {
-    const result = await multiply8.methods.multiply(5).send({ from: accounts[1] });
+    const result = await multiply8.methods.multiply(5).call();
     console.log("totalNum", result);
     assert.equal(result, 40);
   });
