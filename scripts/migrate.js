@@ -10,7 +10,7 @@ const deployAllContracts = async () => {
     compiledContracts.map(async contract => {
       const { name, interface, bytecode } = contract;
       const ABI = interface;
-      await deploy(accounts, name, ABI, bytecode);
+      await deploy(web3, accounts, name, ABI, bytecode);
     })
   } catch (err) {
     console.error(err);
