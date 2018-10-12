@@ -23,7 +23,6 @@ describe("todolist contract", () => {
   it("can create a new todo", async () => {
     await todolist.methods.createTodo("write tests").send({ from: accounts[1] });
     const totalNum = await todolist.methods.getTotalNumTodos().call();
-    console.log("totalNum", totalNum);
     assert.equal(totalNum, 1);
   });
 

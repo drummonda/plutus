@@ -22,7 +22,6 @@ describe("multiply8 contract", () => {
 
   it("can multiply a number by 8", async () => {
     const result = await multiply8.methods.multiply(5).call();
-    console.log("totalNum", result);
     assert.equal(result, 40);
   });
 
