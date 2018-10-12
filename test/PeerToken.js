@@ -9,12 +9,23 @@ let peerTokenContract, accounts, contractAddress;
 const initialSupply = 21000000;
 
 beforeEach(async () => {
+  // Grab all accounts
   accounts = await web3.eth.getAccounts();
+
+  // Deploy the peertoken contract and store the instance
   peerTokenContract = await new web3.eth.Contract(JSON.parse(interface))
     .deploy({ data: bytecode, arguments: [initialSupply, 'PeerToken', 'PTK'] })
     .send({ from: accounts[0], gas: 1000000 });
+
+  // Store the contract address
+  contractAddress = peerTokenContract.options.address;
+
+  // Set the contract owner to accounts[0]
   await peerTokenContract.methods.owned().send({ from: accounts[0] });
+  // Set token prices to 1 ETH
   await peerTokenContract.methods.setPrices(1, 1).send({ from: accounts[0] });
+  // Send the contract 100 ETH
+  await web3.eth.sendTransaction({ from: accounts[2], to: contractAddress, value: 9 })
 })
 
 describe("peerToken contract", () => {
@@ -72,8 +83,30 @@ describe("peerToken contract", () => {
 
   it("user can buy tokens from the contract", async () => {
     try {
-      const amount = await peerTokenContract.methods.buy().send({ from: accounts[1], value: 10 });
-      assert.equal(amount, 10);
+      const previousContractBalance = await peerTokenContract.methods.balanceOf(contractAddress).call();
+      await peerTokenContract.methods.buy().send({ from: accounts[1], value: 10 });
+      const newAccountBalance = await peerTokenContract.methods.balanceOf(accounts[1]).call();
+      const newContractBalance = await peerTokenContract.methods.balanceOf(contractAddress).call();
+      const contractEthBalance = await web3.eth.getBalance(contractAddress);
+      assert.equal(newAccountBalance, 10);
+      assert.equal(newContractBalance < previousContractBalance, true);
+      assert.equal(contractEthBalance, 10);
+    } catch (err) {
+      assert.fail(err.message);
+    }
+  })
+
+  it("user can sell tokens to the contract", async () => {
+    try {
+      await peerTokenContract.methods.buy().send({ from: accounts[1], value: 10 });
+      const previousContractBalance = await peerTokenContract.methods.balanceOf(contractAddress).call();
+      await peerTokenContract.methods.sell(2).send({ from: accounts[1] });
+      const newAccountBalance = await peerTokenContract.methods.balanceOf(accounts[1]).call();
+      const newContractBalance = await peerTokenContract.methods.balanceOf(contractAddress).call();
+      const contractEthBalance = await web3.eth.getBalance(contractAddress);
+      assert.equal(newAccountBalance, 8);
+      assert.equal(newContractBalance > previousContractBalance, true);
+      assert.equal(contractEthBalance, 8);
     } catch (err) {
       assert.fail(err.message);
     }

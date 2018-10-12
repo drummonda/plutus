@@ -47,7 +47,6 @@ contract ERC20 {
     {
         totalSupply = initialSupply * 10 * uint256(decimals);
         balanceOf[msg.sender] = initialSupply;
-        balanceOf[this] = initialSupply;
         name = tokenName;
         symbol = tokenSymbol;
     }
