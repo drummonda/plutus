@@ -43,11 +43,11 @@ beforeEach(async () => {
 });
 
 describe("peerToken contract", () => {
-  it("deploys a contract", () => {
+  it("deploy: deploys a contract", () => {
     assert.ok(peerTokenContract.options.address);
   });
 
-  it("has name, symbol and totalSupply", async () => {
+  it("initialize: token has name, symbol and totalSupply", async () => {
     const name = await peerTokenContract.methods
       .name()
       .call();
@@ -63,7 +63,7 @@ describe("peerToken contract", () => {
     assert.equal(totalSupply, 7560000000);
   });
 
-  it("balance of deployer is equal to initial supply", async () => {
+  it("balanceOf: balance of deployer is equal to initial supply", async () => {
     const balanceOfSender = await peerTokenContract.methods
       .balanceOf(accounts[0])
       .call();
@@ -71,7 +71,7 @@ describe("peerToken contract", () => {
     assert.equal(balanceOfSender, initialSupply);
   });
 
-  it("the contract owner can set its token prices", async () => {
+  it("setPrices: the contract owner can set its token prices", async () => {
     try {
 
       await peerTokenContract.methods
@@ -94,7 +94,7 @@ describe("peerToken contract", () => {
     }
   });
 
-  it("a non-owner cannot set token prices", async () => {
+  it("owned: a non-owner cannot set token prices", async () => {
     try {
 
       await peerTokenContract.methods
@@ -110,7 +110,7 @@ describe("peerToken contract", () => {
     }
   });
 
-  it("the contract owner can mint new tokens", async () => {
+  it("mintToken: the contract owner can mint new tokens", async () => {
     try {
 
       // Grab the old token supply
@@ -139,7 +139,7 @@ describe("peerToken contract", () => {
     }
   });
 
-  it("user can buy tokens from the contract", async () => {
+  it("buy: user can buy tokens from the contract", async () => {
     try {
 
       // Grab the previous contract balance
@@ -179,7 +179,7 @@ describe("peerToken contract", () => {
     }
   })
 
-  it("user can sell tokens to the contract", async () => {
+  it("sell: user can sell tokens to the contract", async () => {
     try {
 
       // Account 2 buys 10 ether worth of tokens

@@ -25,7 +25,7 @@ beforeEach(async () => {
     });
 
   // Store the contract address
-  // contractAddress = peerTokenContract.options.address;
+  contractAddress = peerTokenContract.options.address;
 
   // Set the contract owner to accounts[0]
   await peerTokenContract.methods
@@ -40,11 +40,11 @@ beforeEach(async () => {
 });
 
 describe("ERC20 contract", () => {
-  it("deploys a contract", () => {
+  it("deploy: deploys a contract", () => {
     assert.ok(peerTokenContract.options.address);
   });
 
-  it("has name, symbol and totalSupply", async () => {
+  it("initialize: token has a name, symbol, tokenSupply", async () => {
     const name = await peerTokenContract.methods
       .name()
       .call();
@@ -60,7 +60,7 @@ describe("ERC20 contract", () => {
     assert.equal(totalSupply, 7560000000);
   });
 
-  it("a user can transfer their tokens to someone else", async () => {
+  it("transfer: a user can transfer their tokens to someone else", async () => {
     try {
       const success = await peerTokenContract.methods
         .transfer(accounts[1], 12)
@@ -80,7 +80,7 @@ describe("ERC20 contract", () => {
   });
 
 
-  it("a user can authorize someone else to transfer their tokens", async () => {
+  it("approve: a user can authorize someone else to transfer their tokens", async () => {
     try {
 
       // Send Account 1 100 PeerTokens
@@ -107,7 +107,7 @@ describe("ERC20 contract", () => {
     }
   });
 
-  it("an authorized user can transfer another account's tokens", async () => {
+  it("transferFrom: an authorized user can transfer another account's tokens", async () => {
     try {
 
       // Send Account 1 100 PeerTokens
@@ -150,5 +150,89 @@ describe("ERC20 contract", () => {
 
     }
   });
+
+  it("burn: a user can burn their tokens", async () => {
+
+    // Send Account 1 100 PeerTokens
+    await peerTokenContract.methods
+      .transfer(accounts[1], 100)
+      .send({ from: accounts[0] });
+
+    // Get total token supply pre burn
+    const totalSupplyPreBurn = await peerTokenContract.methods
+      .totalSupply()
+      .call();
+
+    // Get Account 1 balance pre burn
+    const accountBalancePreBurn = await peerTokenContract.methods
+      .balanceOf(accounts[1])
+      .call();
+
+    // Account 1 does not like this! They burn their tokens
+    await peerTokenContract.methods
+      .burn(100)
+      .send({ from: accounts[1] });
+
+    // Get Account 1 balance post burn
+    const accountBalancePostBurn = await peerTokenContract.methods
+      .balanceOf(accounts[1])
+      .call();
+
+    // Get total token supply post burn
+    const totalSupplyPostBurn = await peerTokenContract.methods
+      .totalSupply()
+      .call();
+
+    assert.equal(Number(accountBalancePreBurn), 100);
+    assert.equal(Number(accountBalancePostBurn), 0);
+    assert.equal(Number(totalSupplyPreBurn), Number(totalSupplyPostBurn) + 100);
+  })
+
+  it("burnFrom: an authorized user can burn another user's tokens", async () => {
+    try {
+
+      // Send Account 1 100 PeerTokens
+    await peerTokenContract.methods
+      .transfer(accounts[1], 100)
+      .send({ from: accounts[0] });
+
+    // Get total token supply pre burn
+    const totalSupplyPreBurn = await peerTokenContract.methods
+      .totalSupply()
+      .call();
+
+    // Get Account 1 balance pre burn
+    const accountBalancePreBurn = await peerTokenContract.methods
+      .balanceOf(accounts[1])
+      .call();
+
+    // Account 1 authorizes Account 3 to burn their tokens
+    await peerTokenContract.methods
+      .approve(accounts[3], 100)
+      .send({ from: accounts[1] });
+
+    // Mwahaha Account 3 burns Account 1's tokens
+    await peerTokenContract.methods
+      .burnFrom(accounts[1], 100)
+      .send({ from: accounts[3] });
+
+    // Get Account 1 balance post burn, sad :(
+    const accountBalancePostBurn = await peerTokenContract.methods
+      .balanceOf(accounts[1])
+      .call();
+
+    // Get total token supply post burn
+    const totalSupplyPostBurn = await peerTokenContract.methods
+      .totalSupply()
+      .call();
+
+    assert.equal(Number(accountBalancePreBurn), 100);
+    assert.equal(Number(accountBalancePostBurn), 0);
+    assert.equal(Number(totalSupplyPreBurn), Number(totalSupplyPostBurn) + 100);
+
+    } catch (err) {
+      assert.fail(err.message);
+    }
+  })
 
 })
