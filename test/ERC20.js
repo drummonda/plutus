@@ -57,7 +57,7 @@ describe("ERC20 contract", () => {
 
     assert.equal(name, "PeerToken");
     assert.equal(symbol, "PTK");
-    assert.equal(totalSupply, 3780000000);
+    assert.equal(totalSupply, 7560000000);
   });
 
   it("a user can transfer their tokens to someone else", async () => {

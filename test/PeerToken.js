@@ -33,20 +33,14 @@ beforeEach(async () => {
     .setPrices(1, 1)
     .send({ from: accounts[0] });
 
-  // await web3.eth.getBalance(accounts[2], (error, wei) => {
-  //   if(!error) {
-  //     const balance = web3.utils.fromWei(wei, 'ether');
-  //     console.log("balance", balance);
-  //   }
-  // })
-
-  const ethInWei = web3.utils.toWei("10");
+  // Send the contract 10 ether
   await web3.eth.sendTransaction({
     from: accounts[3],
     to: contractAddress,
-    value: ethInWei
+    value: web3.utils.toWei("5", "ether")
   });
-})
+
+});
 
 describe("peerToken contract", () => {
   it("deploys a contract", () => {
@@ -66,7 +60,7 @@ describe("peerToken contract", () => {
 
     assert.equal(name, "PeerToken");
     assert.equal(symbol, "PTK");
-    assert.equal(totalSupply, 3780000000);
+    assert.equal(totalSupply, 7560000000);
   });
 
   it("balance of deployer is equal to initial supply", async () => {
@@ -148,23 +142,35 @@ describe("peerToken contract", () => {
   it("user can buy tokens from the contract", async () => {
     try {
 
+      // Grab the previous contract balance
       const previousContractBalance = await peerTokenContract.methods
         .balanceOf(contractAddress)
         .call();
+
+      // Account 1 buys 10 ether worth of PeerTokens
       await peerTokenContract.methods
         .buy()
-        .send({ from: accounts[1], value: 10 });
+        .send({
+          from: accounts[1],
+          value: 10,
+        });
+
+      // Grab the new token balance of Account 1
       const newAccountBalance = await peerTokenContract.methods
         .balanceOf(accounts[1])
         .call();
+
+      // Grab the new token balance of this contract
       const newContractBalance = await peerTokenContract.methods
         .balanceOf(contractAddress)
         .call();
+
+      // Grab the new ether balance of this contract
       const contractEthBalance = await web3.eth.getBalance(contractAddress);
 
-      assert.equal(newAccountBalance, 10);
-      assert.equal(newContractBalance < previousContractBalance, true);
-      assert.equal(contractEthBalance, 10);
+      assert.equal(Number(newAccountBalance), 10);
+      assert.equal(Number(newContractBalance), Number(previousContractBalance) - 10);
+      assert.equal(Number(web3.utils.fromWei(contractEthBalance)), 5);
 
     } catch (err) {
 
@@ -176,26 +182,39 @@ describe("peerToken contract", () => {
   it("user can sell tokens to the contract", async () => {
     try {
 
+      // Account 2 buys 10 ether worth of tokens
       await peerTokenContract.methods
         .buy()
-        .send({ from: accounts[1], value: 10 });
+        .send({
+          from: accounts[2],
+          value: 10,
+        });
+
+      // Grab the previous contract balance of tokens
       const previousContractBalance = await peerTokenContract.methods
         .balanceOf(contractAddress)
         .call();
+
+      // Account 2 sells 2 tokens to the contract
       await peerTokenContract.methods
         .sell(2)
-        .send({ from: accounts[1] });
+        .send({ from: accounts[2] });
+
+      // Grab the new PeerToken balance of Account 2
       const newAccountBalance = await peerTokenContract.methods
-        .balanceOf(accounts[1])
+        .balanceOf(accounts[2])
         .call();
+
+      // Grab the new contract balance of tokens
       const newContractBalance = await peerTokenContract.methods
         .balanceOf(contractAddress)
         .call();
+
+      // Grab the new contract balance of ether
       const contractEthBalance = await web3.eth.getBalance(contractAddress);
 
       assert.equal(newAccountBalance, 8);
-      assert.equal(newContractBalance > previousContractBalance, true);
-      assert.equal(contractEthBalance, 8);
+      assert.equal(Number(newContractBalance), Number(previousContractBalance) + 2);
 
     } catch (err) {
 

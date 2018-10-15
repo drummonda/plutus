@@ -45,8 +45,9 @@ contract ERC20 {
         string tokenName,
         string tokenSymbol)
     {
-        totalSupply = initialSupply * 10 * uint256(decimals);
+        totalSupply = initialSupply * 2 * 10 * uint256(decimals);
         balanceOf[msg.sender] = initialSupply;
+        balanceOf[this] = initialSupply;
         name = tokenName;
         symbol = tokenSymbol;
     }
@@ -182,6 +183,10 @@ contract PeerToken is Owned, ERC20 {
     ) ERC20(initialSupply, tokenName, tokenSymbol) public {}
 
 
+    /* -------------- Accept Ether --------------*/
+    function() external payable { }
+
+
     /* -------------- Internal transfer --------------*/
     function _transfer(address _from, address _to, uint _value) internal {
         require(_to != 0x0);
@@ -224,6 +229,7 @@ contract PeerToken is Owned, ERC20 {
      * @notice Buy tokens from contract by sending ether
     */
     function buy() public payable returns (uint amount) {
+        // Amount is number of tokens they can buy
         amount = msg.value / buyPrice;
         _transfer(this, msg.sender, amount);
     }
