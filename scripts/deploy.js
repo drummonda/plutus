@@ -1,13 +1,18 @@
 const Web3 = require("web3");
 const Provider = require("truffle-hdwallet-provider");
 const compiledContracts = require("./compile");
-const { addContractArtifact } = require("../server/firebase/api");
 const web3 = new Web3("http://localhost:8545");
+const { addContractArtifact } = require("../server/firebase/api");
 
 const deploy = async (accounts, name, ABI, bytecode) => {
   try {
     const contract = await new web3.eth.Contract(JSON.parse(ABI));
-    const deployed = await contract.deploy({ data: bytecode });
+    let deployed = null;
+    if(name === "PeerToken") {
+      deployed = await contract.deploy({ data: bytecode, arguments: [21000000, 'PeerToken', 'PTK']});
+    } else {
+      deployed = await contract.deploy({ data: bytecode });
+    }
     const sent = await deployed.send({
      from: accounts[0],
      gas: 3000000,
@@ -15,7 +20,7 @@ const deploy = async (accounts, name, ABI, bytecode) => {
     const address = sent.options.address;
     const artifact = { address, abi: JSON.parse(ABI) };
     await addContractArtifact(name, artifact);
-    console.log("Deployed on:", address);
+    console.log("Name: ", name, "Deployed on:", address);
     return;
   } catch (err) {
     console.error(err);
