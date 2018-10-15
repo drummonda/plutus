@@ -37,7 +37,7 @@ beforeEach(async () => {
     .setPrices(1, 1)
     .send({ from: accounts[0] });
 
-})
+});
 
 describe("ERC20 contract", () => {
   it("deploys a contract", () => {
@@ -77,9 +77,78 @@ describe("ERC20 contract", () => {
       assert.fail(err);
 
     }
+  });
 
-  })
+
+  it("a user can authorize someone else to transfer their tokens", async () => {
+    try {
+
+      // Send Account 1 100 PeerTokens
+      await peerTokenContract.methods
+        .transfer(accounts[1], 100)
+        .send({ from: accounts[0] });
+
+      // Account 1 authorizes Account 2 to spend up to 12 tokens
+      await peerTokenContract.methods
+        .approve(accounts[2], 12)
+        .send({ from: accounts[1] });
+
+      // Account 2 authorized to transfer tokens on behalf of Account 1 to Account 3
+      const numTokensApproved = await peerTokenContract.methods
+        .allowance(accounts[1], accounts[2])
+        .call();
+
+      assert.equal(numTokensApproved, 12);
+
+    } catch (err) {
+
+      assert.fail(err);
+
+    }
+  });
+
+  it("an authorized user can transfer another account's tokens", async () => {
+    try {
+
+      // Send Account 1 100 PeerTokens
+      await peerTokenContract.methods
+        .transfer(accounts[1], 100)
+        .send({ from: accounts[0] });
+
+      // Account 1 authorizes Account 2 to spend up to 12 tokens
+      await peerTokenContract.methods
+        .approve(accounts[2], 12)
+        .send({ from: accounts[1] });
+
+      // Is account 2 authorized to spend any tokens on behalf of Account 1
+      const numTokensApproved = await peerTokenContract.methods
+        .allowance(accounts[1], accounts[2])
+        .call();
+
+      // Account 2 can transfer tokens to Account 3 on behalf of Account 1
+      await peerTokenContract.methods
+        .transferFrom(accounts[1], accounts[3], 11)
+        .send({ from: accounts[2] });
+
+      // Balance of Account 3
+      const balanceAccount3 = await peerTokenContract.methods
+        .balanceOf(accounts[3])
+        .call();
+
+      // Balance of Account 1
+      const balanceAccount1 = await peerTokenContract.methods
+        .balanceOf(accounts[1])
+        .call();
+
+      assert.equal(Number(balanceAccount3), 11);
+      assert.equal(Number(balanceAccount1), 89);
 
 
+    } catch (err) {
+
+      assert.fail(err);
+
+    }
+  });
 
 })
