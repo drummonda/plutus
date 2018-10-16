@@ -39,8 +39,19 @@ contract Factory {
    *
    * @param _reference the reference to the original loanPool
   */
-  function createNewPool(LoanPool _reference) {
-    LoanPool loanPool = new LoanPool(_reference, this);
+  function createNewPool(
+    uint8 _launchBalance,
+    uint8 _interestRate,
+    uint8 _duration,
+    uint _gracePeriod,
+    uint _strikes)
+  {
+    LoanPool loanPool = new LoanPool(
+                              _launchBalance,
+                              _interestRate,
+                              _duration,
+                              _gracePeriod,
+                              _strikes);
     return loanPool;
   }
 
@@ -50,13 +61,15 @@ contract Factory {
 contract LoanPool is Owned {
 
   /* -------------- Contract variables --------------*/
-  uint8 currentBalance;
-  uint8 launchBalance;
-  uint8 interestRate;
-  uint duration;
-  uint gracePeriod;
-  uint strikes;
-  mapping (address => uint) investors;
+  uint8 public currentBalance;
+  uint8 public launchBalance;
+  uint8 public interestRate;
+  uint public duration;
+  uint public gracePeriod;
+  uint public strikes;
+  bool public launched;
+  mapping (address => uint) public investors;
+  address public recipient;
 
 
   /* -------------- Event emitters --------------*/
@@ -64,30 +77,65 @@ contract LoanPool is Owned {
 
 
   /* --------------  Constructor --------------*/
-  constructor(LoanPool _reference, Factory _factory) {
-    reference = _reference;
-    factory = _factory;
+  constructor(
+    uint8 _launchBalance,
+    uint8 _interestRate,
+    uint8 _duration,
+    uint _gracePeriod,
+    uint _strikes)
+  {
+    currentBalance = 0;
+    launchBalance = _launchBalance;
+    duration = _duration;
+    gracePeriod = _gracePeriod;
+    strikes = _strikes;
+    launched = false;
   }
 
 
-  /* Factory contract can create loanPool contract
+  /* Launch the loanPool
    *
-   * @notice Factory contract creates Loan Pool
+   * @notice changes launch to true
   */
-  function factoryCreateLoanPool() public onlyOwner {
-    LoanPool memory newPool = factory.createNewPool(this);
-    emit LoanPoolCreated(newPool);
+  function _launch () internal onlyOwner {
+    launched = true;
   }
 
 
   /* Add an investment
    *
+   * @param _investor the investor
+   * @param amount the amount to be invested
    * @notice add an investor and amount to mapping
   */
   function addInvestment(address _investor, uint amount) public onlyOwner {
+
+    // Require that the contract has not been launched
+    require(!launched);
+
+    // Require that newBalance not greater than launchBalance
+    require(newBalance  <= launchBalance);
+
     // Update the mapping
+    investors[_investor] = amount;
+
+    // Add amount to current amount
+    uint newBalance = currentBalance + amount;
+
+    // If equal to launch balance then launch the contract
+    if(newBalance == launchBalance) {
+      _launch();
+    }
 
   }
+
+
+  /* Add an investment
+   *
+   * @param _investor the investor
+   * @param amount the amount to be invested
+   * @notice add an investor and amount to mapping
+  */
 
 
 
