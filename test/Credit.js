@@ -58,7 +58,7 @@ describe("Credit contract", () => {
     assert.equal(owner, accounts[0]);
   });
 
-  it("initializeUser: can initialize a user with a base score", async () => {
+  it("initializeUser: owner can initialize a user with a base score", async () => {
 
     // Initialize the new user at Account 1
     await creditContract.methods
@@ -71,6 +71,25 @@ describe("Credit contract", () => {
       .call();
 
     assert.equal(userBaseScore, 400);
+  });
+
+  it("initializeUser: non-owner cannot initialize a user with a base score", async () => {
+
+    try {
+
+      // Initialize the new user at Account 1
+      await creditContract.methods
+        .initializeUser(accounts[1])
+        .send({ from: accounts[1] });
+
+      assert.fail("Non owner cannot initialize user");
+
+    } catch (err) {
+
+      // Do nothing, this was supposed to fail
+
+    }
+
   });
 
   it("raiseScore: owner can raise a user's score", async () => {
@@ -149,6 +168,30 @@ describe("Credit contract", () => {
     assert.equal(userInitialBaseScore, 400);
     assert.equal(userNewBaseScore, 390);
 
-  })
+  });
+
+  it("lowerScore: non-owner cannot lower a user's score", async () => {
+
+    try {
+
+      // Initialize the new user at Account 1
+      await creditContract.methods
+        .initializeUser(accounts[1])
+        .send({ from: accounts[0] });
+
+      // Account 2 cannot lower Account 1's score by 10
+      await creditContract.methods
+        .lowerScore(accounts[1], 10)
+        .send({ from: accounts[2] });
+
+      assert.fail("This should have thrown an error");
+
+    } catch (err) {
+
+      // Do nothing, we expected it to fail
+
+    }
+
+  });
 
 })
