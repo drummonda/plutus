@@ -23,11 +23,6 @@ beforeEach(async () => {
   // Store the contract address
   contractAddress = peerTokenContract.options.address;
 
-  // Set the contract owner to accounts[0]
-  await peerTokenContract.methods
-    .owned()
-    .send({ from: accounts[0] });
-
   // Set token prices to 1 ETH
   await peerTokenContract.methods
     .setPrices(1, 1)
