@@ -1,6 +1,8 @@
 pragma solidity ^0.4.25;
 
-
+/**
+ * The Owned contract restricts actions
+ */
 contract Owned {
     address public owner;
 
@@ -22,6 +24,10 @@ interface tokenRecipient {
     function receiveApproval(address _from, uint256 _value, address _token, bytes _extraData) external;
 }
 
+
+/**
+ * A classic ERC20 token
+ */
 contract ERC20 {
 
     /* -------------- Contract variables --------------*/
@@ -168,6 +174,10 @@ contract ERC20 {
 
 }
 
+
+/**
+ * A currency for lending, PeerToken contract
+ */
 contract PeerToken is Owned, ERC20 {
 
     /* -------------- Contract variables --------------*/

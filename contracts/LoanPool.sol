@@ -1,6 +1,8 @@
 pragma solidity ^0.4.25;
 
-
+/**
+ * The Owned contract restricts actions
+ */
 contract Owned {
     address public owner;
 
@@ -19,6 +21,9 @@ contract Owned {
 }
 
 
+/**
+ * The Factory contract for generating LoanPools
+ */
 contract Factory {
 
   /* -------------- Contract variables --------------*/
@@ -58,6 +63,9 @@ contract Factory {
 }
 
 
+/**
+ * The LoanPool contract for facilitating peer to peer lending
+ */
 contract LoanPool is Owned {
 
   /* -------------- Contract variables --------------*/
@@ -130,13 +138,20 @@ contract LoanPool is Owned {
   }
 
 
-  /* Add an investment
+  /* Set the recipient of the loan contract
    *
-   * @param _investor the investor
-   * @param amount the amount to be invested
-   * @notice add an investor and amount to mapping
+   * @param _recipient
   */
+  function setRecipient(address _recipient) public onlyOwner {
+    // The contract is not launched
+    require(!launched);
 
+    // There is no recipient already set
+    require(recipient == 0);
+
+    // Set the loan recipient
+    recipient = _recipient;
+  }
 
 
 }
