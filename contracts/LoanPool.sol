@@ -1,33 +1,67 @@
 pragma solidity ^0.4.25;
 
-/*
- *
- * Loan pool factory contract for producing loan pools
- *
- *
-*/
-contract Factory {
-  function createNewPool(LoanPool _reference) {
-    LoanPool loan_pool = new LoanPool(_reference, this);
-    return loan_pool;
-  }
+
+contract Owned {
+    address public owner;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner {
+        require(msg.sender == owner);
+        _;
+    }
+
+    function transferOwnership(address newOwner) public onlyOwner {
+        owner = newOwner;
+    }
 }
 
 
-/*
- *
- * Loan pool contract
- *
- *
-*/
-contract LoanPool {
+contract Factory {
 
   /* -------------- Contract variables --------------*/
-  Factory public factory;
-  LoanPool public reference;
+  address[] public contracts;
+
+
+  /** Get Contract Count
+   *
+   * A function that grabs the number of deployed contracts
+   *
+  */
+  function getContractCount() public view returns(uint contractCount) {
+    return contracts.length;
+  }
+
+
+  /** Create a new pool with params
+   *
+   * @param _reference the reference to the original loanPool
+  */
+  function createNewPool(LoanPool _reference) {
+    LoanPool loanPool = new LoanPool(_reference, this);
+    return loanPool;
+  }
+
+}
+
+
+contract LoanPool is Owned {
+
+  /* -------------- Contract variables --------------*/
+  uint8 currentBalance;
+  uint8 launchBalance;
+  uint8 interestRate;
+  uint duration;
+  uint gracePeriod;
+  uint strikes;
+  mapping (address => uint) investors;
+
 
   /* -------------- Event emitters --------------*/
-  event LoanPoolCreated(LoanPool indexed loan_pool);
+  event LoanPoolCreated(LoanPool indexed loanPool);
+
 
   /* --------------  Constructor --------------*/
   constructor(LoanPool _reference, Factory _factory) {
@@ -35,8 +69,26 @@ contract LoanPool {
     factory = _factory;
   }
 
-  function factoryCreateLoanPool() public {
+
+  /* Factory contract can create loanPool contract
+   *
+   * @notice Factory contract creates Loan Pool
+  */
+  function factoryCreateLoanPool() public onlyOwner {
     LoanPool memory newPool = factory.createNewPool(this);
     emit LoanPoolCreated(newPool);
   }
+
+
+  /* Add an investment
+   *
+   * @notice add an investor and amount to mapping
+  */
+  function addInvestment(address _investor, uint amount) public onlyOwner {
+    // Update the mapping
+
+  }
+
+
+
 }

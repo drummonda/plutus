@@ -174,6 +174,9 @@ contract PeerToken is Owned, ERC20 {
     uint256 public sellPrice;
     uint256 public buyPrice;
 
+    /* -------------- Contract events --------------*/
+    event Invest(address indexed investor, address indexed contract, uint256 value);
+
 
     /* -------------- Constructor function --------------*/
     constructor (
@@ -221,6 +224,19 @@ contract PeerToken is Owned, ERC20 {
     function setPrices(uint256 newSellPrice, uint256 newBuyPrice) onlyOwner public {
         sellPrice = newSellPrice;
         buyPrice = newBuyPrice;
+    }
+
+
+    /* Invest tokens
+     *
+     * @notice send `_receiver` `_amount` tokens from `_sender`
+     * @param _receiver Address to receive the tokens
+     * @param amount the amount of tokens it will receive
+    */
+    function invest (address _contract, uint amount) onlyOwner public {
+        _transfer(msg.sender, _contract, amount);
+        emit Transfer(msg.sender, _contract, amount);
+        emit Invest(msg.sender, _contract, amount);
     }
 
 
