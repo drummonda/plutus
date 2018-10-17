@@ -9,7 +9,7 @@ const { addContractArtifact } = require("../server/firebase/api");
 const migrationPath = path.resolve(__dirname, "..", "migrations");
 
 // Deployment function that gets passed into each migration file
-const deploy = async (name, ABI, data) => {
+const deployContract = async (name, ABI, data) => {
   try {
     const accounts = await web3.eth.getAccounts();
     const contract = await new web3.eth.Contract(JSON.parse(ABI));
@@ -37,8 +37,8 @@ const deployAllContracts = async () => {
         process.exit(1);
       }
       files.forEach(async file => {
-        const filePath = `../migrations/${file}`;
-        await require(filePath)(deploy);
+        const contractMigrationPath = `../migrations/${file}`;
+        await require(contractMigrationPath)(deployContract);
       })
     });
   } catch (err) {
@@ -47,8 +47,10 @@ const deployAllContracts = async () => {
 
 }
 
+// Call the deploy contracts function
 deployAllContracts();
 
+// Kill the node process
 setTimeout(() => {
   process.exit();
 }, 10000);
