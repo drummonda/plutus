@@ -2,10 +2,14 @@ const path = require("path");
 const fs = require("fs-extra");
 const solc = require("solc");
 
+/*
+ *
+ * Directory paths
+ *
+*/
 
 // General directory paths
 const buildPath = path.resolve(__dirname, "..", "build");
-
 
 // Contract file paths
 const ownedPath = path.resolve(__dirname, "..", "contracts", "Owned.sol");
@@ -15,15 +19,20 @@ const peerTokenPath = path.resolve(__dirname, "..", "contracts", "PeerToken.sol"
 
 
 /*
- * Our state object for module.exports, to export all the compiled contracts
- * for the deployment script
+ *
+ * Contract objects post-compile
+ *
 */
 let contractObjects = [];
 
 
 /*
- * The compile contract function, which will compile an individual contract
+ *
+ * Helper functions
+ *
 */
+
+// Compile each contract
 const compileContract = input => {
   const compiled = solc.compile({ sources: input }, 1);
   const compiledContract = compiled.contracts;
@@ -31,11 +40,7 @@ const compileContract = input => {
   return compiledContract
 }
 
-
-/*
- * The compile contract function, which will write the artifact to the
- * build folder and export the artifact for deployment
-*/
+// Write the contract to the builds folder
 const writeContractArtifact = (compiledContract, contractName) => {
   const fileName = `${contractName}.json`;
   const solidityFile = `${contractName}.sol`
@@ -50,31 +55,53 @@ const writeContractArtifact = (compiledContract, contractName) => {
 
 
 /*
- * Define compiler imports for all the given contracts we have
+ *
+ * Read each contract file and create various inputs
+ *
 */
+
+// Read each contract file
 const ownedInput = { 'Owned.sol': fs.readFileSync(ownedPath, "utf8") };
 const erc20Input = { 'ERC20.sol': fs.readFileSync(erc20Path, "utf8") };
 const peerTokenInput = { 'PeerToken.sol': fs.readFileSync(peerTokenPath, "utf8") };
 const creditHubInput = { 'CreditHub.sol': fs.readFileSync(creditHubPath, "utf8") };
 
+// Define the actual contract inputs
+const erc20 = { name: "ERC20", inputs: {...erc20Input} };
+const peerToken = { name: "PeerToken", inputs: {...peerTokenInput, ...ownedInput, ...erc20Input} };
+const creditHub = { name: "CreditHub", inputs: {...ownedInput, ...creditHubInput} };
+const contractsToCompile = [ erc20, peerToken, creditHub];
+
+
 /*
- * Remove the current build directory
+ *
+ * Remove the current builds directory
+ *
 */
+
 fs.removeSync(buildPath);
 fs.ensureDirSync(buildPath);
 
-// Define the actual contract inputs
-const erc20 = {...erc20Input};
+
+/*
+ *
+ * Actually execute the compile and write
+ *
+*/
+contractsToCompile.forEach(contract => {
+  const compiled = compileContract(contract);
+  writeContractArtifact(compiled)
+})
+
+
 const compiledERC20 = compileContract(erc20);
 writeContractArtifact(compiledERC20, "ERC20");
 
 // Do this for PeerToken
-const peerToken = {...peerTokenInput, ...ownedInput, ...erc20Input};
 const compiledPeerToken = compileContract(peerToken);
 writeContractArtifact(compiledPeerToken, "PeerToken");
 
 // Do this for CreditHub
-const creditHub = {...ownedInput, ...creditHubInput};
 const compiledCreditHub = compileContract(creditHub);
 writeContractArtifact(compiledCreditHub, "CreditHub");
 
