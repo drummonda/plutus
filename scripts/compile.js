@@ -31,7 +31,7 @@ const writeContractArtifact = (compiledContract, contractName) => {
 
 /*
  *
- * Compile a contract given it's sub-contract inputs
+ * Compile a contract given its sub-contract inputs
  *
 */
 const compileContract = input => {

@@ -36,7 +36,7 @@ const deployContract = async (name, ABI, data) => {
     const contractArtifact = { address, abi: JSON.parse(ABI) };
     // Push the contract artifact to firebase, for interaction with UI
     await addContractArtifact(name, contractArtifact);
-    console.log("Name: ", name, "Deployed on:", address);
+    console.log("Name: ", name, "deployed on:", address);
     return;
   } catch (err) {
     console.error(err);

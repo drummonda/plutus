@@ -1,45 +1,6 @@
 pragma solidity ^0.4.25;
 
-/**
- * The Factory contract for generating LoanPools
- */
-contract Factory {
-
-  /* -------------- Contract variables --------------*/
-  address[] public contracts;
-
-
-  /** Get Contract Count
-   *
-   * A function that grabs the number of deployed contracts
-   *
-  */
-  function getContractCount() public view returns(uint contractCount) {
-    return contracts.length;
-  }
-
-
-  /** Create a new pool with params
-   *
-   * @param _reference the reference to the original loanPool
-  */
-  function createNewPool(
-    uint8 _launchBalance,
-    uint8 _interestRate,
-    uint8 _duration,
-    uint _gracePeriod,
-    uint _strikes)
-  {
-    LoanPool loanPool = new LoanPool(
-                              _launchBalance,
-                              _interestRate,
-                              _duration,
-                              _gracePeriod,
-                              _strikes);
-    return loanPool;
-  }
-
-}
+import './Owned.sol';
 
 
 /**
@@ -77,6 +38,7 @@ contract LoanPool is Owned {
     gracePeriod = _gracePeriod;
     strikes = _strikes;
     launched = false;
+    emit LoanPoolCreated(this);
   }
 
 
