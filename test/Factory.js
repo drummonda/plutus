@@ -28,7 +28,14 @@ beforeEach(async () => {
     });
 
   // Store the contract address
-  factoryAddress = factoryContract.options.address;
+  contractAddress = factoryContract.options.address;
+
+  // Send the contract 10 ether
+  await web3.eth.sendTransaction({
+    from: accounts[3],
+    to: contractAddress,
+    value: web3.utils.toWei("10", "ether")
+  });
 
 });
 
@@ -45,6 +52,13 @@ describe("Factory contract", () => {
     assert.equal(numberContracts, 0);
   });
 
+  it("initialize: factory has a balance of 10 ether", async () => {
+    // Grab the ether balance of factory contract
+      const contractEthBalance = await web3.eth.getBalance(contractAddress);
+
+    assert.equal(Number(web3.utils.fromWei(contractEthBalance)), 10);
+  });
+
   it("getContractCount: factory returns number of contracts it has created", async () => {
     const numberContracts = await factoryContract.methods
       .getContractCount()
@@ -56,7 +70,7 @@ describe("Factory contract", () => {
   it("createNewPool: factory contract can create a new loanPool", async () => {
 
     await factoryContract.methods
-      .createNewPool(launchBalance, interestRate, duration, gracePeriod, strikes)
+      .createNewLoan(launchBalance, interestRate, duration, gracePeriod, strikes)
       .send({ from: accounts[0] });
 
     const numberContracts = await factoryContract.methods

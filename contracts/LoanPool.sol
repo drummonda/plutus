@@ -38,7 +38,6 @@ contract LoanPool is Owned {
     gracePeriod = _gracePeriod;
     strikes = _strikes;
     launched = false;
-    emit LoanPoolCreated(this);
   }
 
 
