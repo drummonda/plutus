@@ -9,19 +9,10 @@ contract Factory is Owned {
 
   /* -------------- Contract variables --------------*/
   mapping(uint => address) public loans;
-  uint8 public numLoans;
+  uint8 public loanCount;
 
   /* -------------- Accept Ether --------------*/
-    function() external payable { }
-
-  /** Get Contract Count
-   *
-   * A function that grabs the number of deployed contracts
-   *
-  */
-  function getContractCount() public view returns(uint contractCount) {
-    return numLoans;
-  }
+  function() external payable { }
 
   /** Get Contract
    *
@@ -64,14 +55,14 @@ contract Factory is Owned {
     uint _strikes)
   public returns (address _address)
   {
-    loans[numLoans] = new Loan(
+    loans[loanCount] = new Loan(
                               _launchBalance,
                               _interestRate,
                               _duration,
                               _gracePeriod,
                               _strikes);
-    numLoans ++;
-    _address = loans[numLoans];
+    loanCount ++;
+    _address = loans[loanCount];
   }
 
 }
