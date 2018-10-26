@@ -6,11 +6,11 @@ const web3 = new Web3(ganache.provider());
 const { interface, bytecode } = require("../build/Factory.json");
 
 let factoryContract, accounts, contractAddress;
-const launchBalance = 100;
-const interestRate = 10;
-const duration = 100;
-const gracePeriod = 5;
-const strikes = 3;
+const loanLaunchBalance = 100;
+const loanInterestRate = 10;
+const loanDuration = 100;
+const loanGracePeriod = 5;
+const loanStrikes = 3;
 
 beforeEach(async () => {
 
@@ -30,13 +30,6 @@ beforeEach(async () => {
   // Store the contract address
   contractAddress = factoryContract.options.address;
 
-  // Send the contract 10 ether
-  await web3.eth.sendTransaction({
-    from: accounts[3],
-    to: contractAddress,
-    value: web3.utils.toWei("10", "ether")
-  });
-
 });
 
 describe("Factory contract", () => {
@@ -46,22 +39,15 @@ describe("Factory contract", () => {
 
   it("initialize: factory has empty array of contract addresses", async () => {
     const numberContracts = await factoryContract.methods
-      .getContractCount()
+      .loanCount()
       .call();
 
     assert.equal(numberContracts, 0);
   });
 
-  it("initialize: factory has a balance of 10 ether", async () => {
-    // Grab the ether balance of factory contract
-      const contractEthBalance = await web3.eth.getBalance(contractAddress);
-
-    assert.equal(Number(web3.utils.fromWei(contractEthBalance)), 10);
-  });
-
-  it("getContractCount: factory returns number of contracts it has created", async () => {
+  it("loanCount: factory returns number of loan contracts it has created", async () => {
     const numberContracts = await factoryContract.methods
-      .getContractCount()
+      .loanCount()
       .call();
 
     assert.equal(numberContracts, 0);
@@ -70,18 +56,101 @@ describe("Factory contract", () => {
   it("createNewLoan: factory contract can create a new loan", async () => {
 
     await factoryContract.methods
-      .createNewLoan(launchBalance, interestRate, duration, gracePeriod, strikes)
+      .createNewLoan(loanLaunchBalance, loanInterestRate, loanDuration, loanGracePeriod, loanStrikes)
       .send({
        from: accounts[0],
        gas: 1500000
       });
 
     const numberContracts = await factoryContract.methods
-      .getContractCount()
+      .loanCount()
       .call();
 
     assert.equal(numberContracts, 1);
   });
 
+  it("createNewLoan: non-owner of factory contract cannot create a new loan", async () => {
+
+    try {
+
+      await factoryContract.methods
+        .createNewLoan(loanLaunchBalance, loanInterestRate, loanDuration, loanGracePeriod, loanStrikes)
+        .send({
+         from: accounts[1],
+         gas: 1500000
+        });
+
+      assert.fail("This test was supposed to throw an error");
+
+    } catch(err) {
+
+      // Do nothing, the test was supposed to throw an error
+
+    }
+
+
+  });
+
+  it("loans mapping: factory contract keeps track of the loan contract addresses", async () => {
+
+    await factoryContract.methods
+      .createNewLoan(loanLaunchBalance, loanInterestRate, loanDuration, loanGracePeriod, loanStrikes)
+      .send({
+       from: accounts[0],
+       gas: 1500000
+      });
+
+    const loanContractAddress = await factoryContract.methods
+      .loans(0)
+      .call();
+
+    assert.ok(loanContractAddress);
+    assert.equal(web3.utils.isAddress(loanContractAddress), true);
+  });
+
+  it("payable: factory contract can accept ether", async () => {
+    // Send the contract 10 ether
+    await web3.eth.sendTransaction({
+      from: accounts[3],
+      to: contractAddress,
+      value: web3.utils.toWei("10", "ether")
+    });
+
+    const factoryContractBalance = await web3.eth.getBalance(contractAddress);
+
+    assert.equal(Number(web3.utils.fromWei(factoryContractBalance)), 10);
+
+  });
+
+  it("getContract: factory contract allows retrieval of contract details by contract id", async () => {
+    await factoryContract.methods
+      .createNewLoan(loanLaunchBalance, loanInterestRate, loanDuration, loanGracePeriod, loanStrikes)
+      .send({
+       from: accounts[0],
+       gas: 1500000
+      });
+
+    const loanContractAddress = await factoryContract.methods
+      .loans(0)
+      .call();
+
+    const {
+            currentBalance,
+            launchBalance,
+            interestRate,
+            duration,
+            strikes,
+            launched
+          } = await factoryContract.methods
+          .getContract(0)
+          .call();
+
+    assert.equal(currentBalance, 0);
+    assert.equal(launchBalance, loanLaunchBalance);
+    assert.equal(interestRate, loanInterestRate);
+    assert.equal(duration, loanDuration);
+    assert.equal(strikes, loanStrikes);
+    assert.equal(launched, false);
+  })
 
 })
