@@ -1,6 +1,7 @@
 pragma solidity ^0.4.25;
 
 import './Owned.sol';
+import './CreditHub.sol';
 
 /**
  * The Factory contract for generating LoanPools
@@ -10,6 +11,13 @@ contract Factory is Owned {
   /* -------------- Contract variables --------------*/
   mapping(uint => address) public loans;
   uint8 public loanCount;
+  address public CreditScores;
+
+
+  /* -------------- Constructor function --------------*/
+  constructor(address _creditScores) {
+    CreditScores = _creditScores;
+  }
 
   /* -------------- Accept Ether --------------*/
   function() external payable { }
@@ -52,7 +60,8 @@ contract Factory is Owned {
     uint8 _interestRate,
     uint8 _duration,
     uint _gracePeriod,
-    uint _strikes)
+    uint _strikes,
+    address _creditScores)
   public returns (address _address)
   {
     loans[loanCount] = new Loan(
@@ -60,7 +69,8 @@ contract Factory is Owned {
                               _interestRate,
                               _duration,
                               _gracePeriod,
-                              _strikes);
+                              _strikes,
+                              _creditScores);
     loanCount ++;
     _address = loans[loanCount];
   }
@@ -81,7 +91,9 @@ contract Loan {
   uint public strikes;
   bool public launched;
   mapping (address => uint) public investors;
+  mapping (uint => uint) public payments;
   address public recipient;
+  address public CreditScores;
 
 
   /* -------------- Event emitters --------------*/
@@ -94,7 +106,8 @@ contract Loan {
     uint8 _interestRate,
     uint8 _duration,
     uint _gracePeriod,
-    uint _strikes)
+    uint _strikes,
+    address _creditScores)
   {
     currentBalance = 0;
     launchBalance = _launchBalance;
@@ -103,6 +116,7 @@ contract Loan {
     gracePeriod = _gracePeriod;
     strikes = _strikes;
     launched = false;
+    CreditScores = _creditScores;
   }
 
 

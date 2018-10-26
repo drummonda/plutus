@@ -38,7 +38,7 @@ const factoryInput = { 'Factory.sol': fs.readFileSync(factoryPath, "utf8") };
 const erc20 = { name: "ERC20", inputs: {...erc20Input} };
 const peerToken = { name: "PeerToken", inputs: {...peerTokenInput, ...ownedInput, ...erc20Input} };
 const creditHub = { name: "CreditHub", inputs: {...ownedInput, ...creditHubInput} };
-const factory = { name: "Factory", inputs: {...ownedInput, ...factoryInput}};
+const factory = { name: "Factory", inputs: {...ownedInput, ...factoryInput, ...creditHubInput}};
 
 /*
  *
