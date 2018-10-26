@@ -71,7 +71,10 @@ describe("Factory contract", () => {
 
     await factoryContract.methods
       .createNewLoan(launchBalance, interestRate, duration, gracePeriod, strikes)
-      .send({ from: accounts[0] });
+      .send({
+       from: accounts[0],
+       gas: 1500000
+      });
 
     const numberContracts = await factoryContract.methods
       .getContractCount()
