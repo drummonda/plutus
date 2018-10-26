@@ -1,20 +1,25 @@
-const path = require("path");
 const fs = require("fs-extra");
+const path = require("path");
 const solc = require("solc");
-const buildPath = path.resolve(__dirname, "..", "build");
-const contractsPath = path.resolve(__dirname, "..", "contracts");
+const { buildPath, contractsToCompile } = require("./utils");
+
+/*
+ *
+ * Contract objects post-compile, to export
+ *
+*/
 let contractObjects = [];
 
-const compileContract = contract => {
-  const compiled = solc.compile(contract, 1);
-  const compiledContract = compiled.contracts;
-  console.log("Compilation output", compiled);
-  return compiledContract
-}
 
+/*
+ *
+ * Write contracts to the build folder
+ *
+*/
 const writeContractArtifact = (compiledContract, contractName) => {
   const fileName = `${contractName}.json`;
-  const key = `:${contractName}`;
+  const solidityFile = `${contractName}.sol`
+  const key = `${solidityFile}:${contractName}`;
   const contractObject = {name: contractName, ...compiledContract[key]};
   fs.outputJsonSync(
     path.resolve(buildPath, fileName),
@@ -23,15 +28,29 @@ const writeContractArtifact = (compiledContract, contractName) => {
   contractObjects = [...contractObjects, contractObject];
 }
 
-fs.removeSync(buildPath);
-fs.ensureDirSync(buildPath);
 
-fs.readdirSync(contractsPath).forEach(file => {
-  const contractName = file.split('.').slice(0, 1)[0];
-  const filePath = path.resolve(contractsPath, file);
-  const contract = fs.readFileSync(filePath, 'utf8');
-  const compiledContract = compileContract(contract);
-  writeContractArtifact(compiledContract, contractName);
-});
+/*
+ *
+ * Compile a contract given its sub-contract inputs
+ *
+*/
+const compileContract = input => {
+  const compiled = solc.compile({ sources: input }, 1);
+  const compiledContract = compiled.contracts;
+  console.log("Compilation output", compiled);
+  return compiledContract
+}
+
+
+/*
+ *
+ * Actually execute the compile and write for each contract provided
+ *
+*/
+contractsToCompile.forEach(contract => {
+  const { name, inputs } = contract;
+  const compiledContract = compileContract(inputs);
+  writeContractArtifact(compiledContract, name);
+})
 
 module.exports = contractObjects;
