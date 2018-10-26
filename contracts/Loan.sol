@@ -4,9 +4,9 @@ import './Owned.sol';
 
 
 /**
- * The LoanPool contract for facilitating peer to peer lending
+ * The Loan contract for facilitating peer to peer lending
  */
-contract LoanPool is Owned {
+contract Loan is Owned {
 
   /* -------------- Contract variables --------------*/
   uint8 public currentBalance;
@@ -21,7 +21,7 @@ contract LoanPool is Owned {
 
 
   /* -------------- Event emitters --------------*/
-  event LoanPoolCreated(LoanPool indexed loanPool);
+  event LoanCreated(Loan indexed loan);
 
 
   /* --------------  Constructor --------------*/
@@ -41,7 +41,7 @@ contract LoanPool is Owned {
   }
 
 
-  /* Launch the loanPool
+  /* Launch the loan
    *
    * @notice changes launch to true
   */

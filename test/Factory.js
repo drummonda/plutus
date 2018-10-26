@@ -67,7 +67,7 @@ describe("Factory contract", () => {
     assert.equal(numberContracts, 0);
   });
 
-  it("createNewPool: factory contract can create a new loanPool", async () => {
+  it("createNewLoan: factory contract can create a new loan", async () => {
 
     await factoryContract.methods
       .createNewLoan(launchBalance, interestRate, duration, gracePeriod, strikes)

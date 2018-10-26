@@ -12,7 +12,7 @@ const creditHubPath = path.resolve(__dirname, "..", "contracts", "CreditHub.sol"
 const erc20Path = path.resolve(__dirname, "..", "contracts", "ERC20.sol");
 const peerTokenPath = path.resolve(__dirname, "..", "contracts", "PeerToken.sol");
 const factoryPath = path.resolve(__dirname, "..", "contracts", "Factory.sol");
-const loanPoolPath = path.resolve(__dirname, "..", "contracts", "LoanPool.sol");
+// const loanPath = path.resolve(__dirname, "..", "contracts", "Loan.sol");
 
 
 /*

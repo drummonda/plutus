@@ -77,7 +77,7 @@ contract Factory is Owned {
 }
 
 /**
- * The LoanPool contract for facilitating peer to peer lending
+ * The Loan contract for facilitating peer to peer lending
  */
 contract Loan {
 
