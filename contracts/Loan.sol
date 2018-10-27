@@ -1,5 +1,6 @@
 pragma solidity ^0.4.25;
 
+import './CreditHub.sol';
 import './Owned.sol';
 
 
@@ -17,7 +18,9 @@ contract Loan is Owned {
   uint public strikes;
   bool public launched;
   mapping (address => uint) public investors;
+  mapping (uint => uint) public payments;
   address public recipient;
+  address public creditContract;
 
 
   /* -------------- Event emitters --------------*/
@@ -30,14 +33,17 @@ contract Loan is Owned {
     uint8 _interestRate,
     uint8 _duration,
     uint _gracePeriod,
-    uint _strikes)
+    uint _strikes,
+    address _creditContract)
   {
     currentBalance = 0;
     launchBalance = _launchBalance;
+    interestRate = _interestRate;
     duration = _duration;
     gracePeriod = _gracePeriod;
     strikes = _strikes;
     launched = false;
+    creditContract = _creditContract;
   }
 
 
@@ -45,7 +51,7 @@ contract Loan is Owned {
    *
    * @notice changes launch to true
   */
-  function _launch () internal onlyOwner {
+  function _launch () internal {
     launched = true;
   }
 
@@ -74,6 +80,16 @@ contract Loan is Owned {
     if(newBalance == launchBalance) {
       _launch();
     }
+
+  }
+
+  /* Calculate investor proportion of loan pool investment
+   *
+   * @param _investor the investor
+   * @param amount the amount to be invested
+   * @notice add an investor and amount to mapping
+  */
+  function calculateInvestorProportion(address _investor) internal returns(uint percent) {
 
   }
 
