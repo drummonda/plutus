@@ -17,8 +17,10 @@ contract Loan is Owned {
   uint public gracePeriod;
   uint public strikes;
   bool public launched;
+
   mapping (address => uint) public investors;
   mapping (uint => uint) public payments;
+
   address public recipient;
   address public creditContract;
 
