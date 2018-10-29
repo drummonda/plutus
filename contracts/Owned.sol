@@ -26,11 +26,11 @@ contract Owned {
         owner = newOwner;
     }
 
-    function approveContract(address _contract) public onlyOwner {
+    function approveContract(address _contract) internal {
         approved[_contract] = true;
     }
 
-    function removeContractApproval(address _contract) public onlyOwner {
+    function removeContractApproval(address _contract) internal {
         approved[_contract] = false;
     }
 }

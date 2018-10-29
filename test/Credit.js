@@ -10,10 +10,10 @@ const initialSupply = 21000000;
 
 beforeEach(async () => {
 
-  // Grab all accounts
+  // grab all accounts
   accounts = await web3.eth.getAccounts();
 
-  // Deploy the peertoken contract and store the instance
+  // deploy the peertoken contract and store the instance
   creditContract = await new web3.eth.Contract(JSON.parse(interface))
     .deploy({
       data: bytecode,
@@ -26,6 +26,11 @@ beforeEach(async () => {
 
   // Store the contract address
   contractAddress = creditContract.options.address;
+
+  // approve account five to modify user credit scoress
+  await creditContract.methods
+    .approveContract(accounts[5])
+    .send({ from: accounts[0] });
 
 });
 
@@ -92,7 +97,39 @@ describe("Credit contract", () => {
 
   });
 
-  it("raiseScore: owner can raise a user's score", async () => {
+  it("approveContract: owner can approve a user or contract to modify the credit scores", async () => {
+
+      await creditContract.methods
+        .approveContract(accounts[1])
+        .send({ from: accounts[0] });
+
+      const isApproved = await creditContract.methods
+        .approved(accounts[1])
+        .call();
+
+      assert.equal(isApproved, true);
+
+  });
+
+  it("approveContract: non-owner cannot approve a user or contract to modify the credit scores", async () => {
+
+    try {
+
+      await creditContract.methods
+        .approveContract(accounts[1])
+        .send({ from: accounts[1] });
+
+      assert.fail("A non-owner cannot approve a contract to modify credit scores!");
+
+    } catch (err) {
+
+      // Do nothing, this was supposed to fail
+
+    }
+
+  });
+
+  it("raiseScore: approved entity can raise a user's score", async () => {
 
     // Initialize the new user at Account 1
     await creditContract.methods
@@ -107,7 +144,7 @@ describe("Credit contract", () => {
     // Account 0 (deployer) can raise score by 10
     await creditContract.methods
       .raiseScore(accounts[1], 10)
-      .send({ from: accounts[0] });
+      .send({ from: accounts[5] });
 
     // Grab new base score
     const userNewBaseScore = await creditContract.methods
@@ -119,7 +156,7 @@ describe("Credit contract", () => {
 
   });
 
-  it("raiseScore: non-owner cannot raise a user's score", async () => {
+  it("raiseScore: non-approved entities cannot raise a user's score", async () => {
 
     try {
 
@@ -143,7 +180,7 @@ describe("Credit contract", () => {
 
   });
 
-  it("lowerScore: owner can lower a user's score", async () => {
+  it("lowerScore: approved entity can lower a user's score", async () => {
 
     // Initialize the new user at Account 1
     await creditContract.methods
@@ -158,7 +195,7 @@ describe("Credit contract", () => {
     // Account 0 (deployer) can raise score by 10
     await creditContract.methods
       .lowerScore(accounts[1], 10)
-      .send({ from: accounts[0] });
+      .send({ from: accounts[5] });
 
     // Grab new base score
     const userNewBaseScore = await creditContract.methods
@@ -170,7 +207,7 @@ describe("Credit contract", () => {
 
   });
 
-  it("lowerScore: non-owner cannot lower a user's score", async () => {
+  it("lowerScore: non-approved entity cannot lower a user's score", async () => {
 
     try {
 

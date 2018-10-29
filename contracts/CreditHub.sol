@@ -23,7 +23,7 @@ contract CreditHub is Owned {
 
 
   /* ------------- Initialize a user with base score ---------------*/
-  function initializeUser(address _user) public {
+  function initializeUser(address _user) public onlyOwner {
     scoreOf[_user] = base;
   }
 

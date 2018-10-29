@@ -7,18 +7,19 @@ import './Loan.sol';
 /**
  * The Factory contract for generating LoanPools
  */
-contract Factory is Owned {
+contract Factory is CreditHub {
 
   /* -------------- Contract variables --------------*/
   mapping(uint => address) public loans;
   uint8 public loanCount;
-  address public CreditScores;
 
 
   /* -------------- Constructor function --------------*/
-  constructor(address _creditScores) {
-    CreditScores = _creditScores;
-  }
+  constructor(
+              uint _minScore,
+              uint _maxScore,
+              uint _baseScore
+  ) public CreditHub(_minScore, _maxScore, _baseScore) { }
 
   /* -------------- Accept Ether --------------*/
   function() external payable { }
@@ -74,6 +75,7 @@ contract Factory is Owned {
                               _creditScores);
     loanCount ++;
     _address = loans[loanCount];
+    approveContract(_address);
   }
 
 }
