@@ -73,9 +73,10 @@ contract Factory is CreditHub {
                               _gracePeriod,
                               _strikes,
                               _creditScores);
+    address _loanAddress = loans[loanCount];
+    approveContract(_loanAddress);
     loanCount ++;
-    _address = loans[loanCount];
-    approveContract(_address);
+    _address = _loanAddress;
   }
 
 }

@@ -49,6 +49,10 @@ contract Loan is Owned {
   }
 
 
+  /* -------------- Accept Ether --------------*/
+  function() external payable { }
+
+
   /* Launch the loan
    *
    * @notice changes launch to true
