@@ -3,9 +3,15 @@ const ganache = require("ganache-cli");
 const Web3 = require("web3");
 
 const web3 = new Web3(ganache.provider());
-const { interface, bytecode } = require("../build/Factory.json");
+const CreditHub = require("../build/CreditHub.json");
+const Factory = require("../build/Factory.json");
 
-let factoryContract, accounts, contractAddress;
+let factoryContract,
+    creditContract,
+    accounts,
+    factoryContractAddress,
+    creditContractAddress;
+
 const loanLaunchBalance = 100;
 const loanInterestRate = 10;
 const loanDuration = 100;
@@ -17,10 +23,25 @@ beforeEach(async () => {
   // Grab all accounts
   accounts = await web3.eth.getAccounts();
 
-  // Deploy the factory contract and store the instance
-  factoryContract = await new web3.eth.Contract(JSON.parse(interface))
+  // Deploy the credit hub contract and store the instance
+  creditContract = await new web3.eth.Contract(JSON.parse(CreditHub.interface))
     .deploy({
-      data: bytecode
+      data: CreditHub.bytecode,
+      arguments: [0, 800, 400]
+    })
+    .send({
+      from: accounts[0],
+      gas: 1500000
+    });
+
+  // Store the credit hub contract address
+  creditContractAddress = creditContract.options.address;
+
+  // Deploy the factory contract and store the instance
+  factoryContract = await new web3.eth.Contract(JSON.parse(Factory.interface))
+    .deploy({
+      data: Factory.bytecode,
+      arguments: [creditContractAddress]
     })
     .send({
       from: accounts[0],
@@ -28,7 +49,7 @@ beforeEach(async () => {
     });
 
   // Store the contract address
-  contractAddress = factoryContract.options.address;
+  factoryContractAddress = factoryContract.options.address;
 
 });
 
@@ -56,7 +77,14 @@ describe("Factory contract", () => {
   it("createNewLoan: factory contract can create a new loan", async () => {
 
     await factoryContract.methods
-      .createNewLoan(loanLaunchBalance, loanInterestRate, loanDuration, loanGracePeriod, loanStrikes)
+      .createNewLoan(
+                    loanLaunchBalance,
+                    loanInterestRate,
+                    loanDuration,
+                    loanGracePeriod,
+                    loanStrikes,
+                    creditContractAddress
+                    )
       .send({
        from: accounts[0],
        gas: 1500000
@@ -74,7 +102,14 @@ describe("Factory contract", () => {
     try {
 
       await factoryContract.methods
-        .createNewLoan(loanLaunchBalance, loanInterestRate, loanDuration, loanGracePeriod, loanStrikes)
+        .createNewLoan(
+                       loanLaunchBalance,
+                       loanInterestRate,
+                       loanDuration,
+                       loanGracePeriod,
+                       loanStrikes,
+                       creditContractAddress
+                       )
         .send({
          from: accounts[1],
          gas: 1500000
@@ -94,7 +129,14 @@ describe("Factory contract", () => {
   it("loans mapping: factory contract keeps track of the loan contract addresses", async () => {
 
     await factoryContract.methods
-      .createNewLoan(loanLaunchBalance, loanInterestRate, loanDuration, loanGracePeriod, loanStrikes)
+      .createNewLoan(
+                     loanLaunchBalance,
+                     loanInterestRate,
+                     loanDuration,
+                     loanGracePeriod,
+                     loanStrikes,
+                     creditContractAddress
+                     )
       .send({
        from: accounts[0],
        gas: 1500000
@@ -112,11 +154,11 @@ describe("Factory contract", () => {
     // Send the contract 10 ether
     await web3.eth.sendTransaction({
       from: accounts[3],
-      to: contractAddress,
+      to: factoryContractAddress,
       value: web3.utils.toWei("10", "ether")
     });
 
-    const factoryContractBalance = await web3.eth.getBalance(contractAddress);
+    const factoryContractBalance = await web3.eth.getBalance(factoryContractAddress);
 
     assert.equal(Number(web3.utils.fromWei(factoryContractBalance)), 10);
 
@@ -124,7 +166,14 @@ describe("Factory contract", () => {
 
   it("getContract: factory contract allows retrieval of contract details by contract id", async () => {
     await factoryContract.methods
-      .createNewLoan(loanLaunchBalance, loanInterestRate, loanDuration, loanGracePeriod, loanStrikes)
+      .createNewLoan(
+                     loanLaunchBalance,
+                     loanInterestRate,
+                     loanDuration,
+                     loanGracePeriod,
+                     loanStrikes,
+                     creditContractAddress
+                     )
       .send({
        from: accounts[0],
        gas: 1500000

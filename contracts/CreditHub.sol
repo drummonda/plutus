@@ -29,7 +29,7 @@ contract CreditHub is Owned {
 
 
   /* ------------- Raise score by a certain value ---------------*/
-  function raiseScore(address _user, uint _value) public onlyOwner {
+  function raiseScore(address _user, uint _value) public onlyApproved {
     uint currentScore = scoreOf[_user] + _value;
     if(currentScore > max) {
       scoreOf[_user] = max;
@@ -40,7 +40,7 @@ contract CreditHub is Owned {
 
 
   /* ------------- Lower score by a certain value ---------------*/
-  function lowerScore(address _user, uint _value) public onlyOwner {
+  function lowerScore(address _user, uint _value) public onlyApproved {
     uint currentScore = scoreOf[_user] - _value;
     if(currentScore < min) {
       scoreOf[_user] = min;

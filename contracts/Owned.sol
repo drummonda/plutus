@@ -6,6 +6,7 @@ pragma solidity ^0.4.25;
  */
 contract Owned {
     address public owner;
+    mapping (address => bool) public approved;
 
     constructor() {
         owner = msg.sender;
@@ -16,7 +17,20 @@ contract Owned {
         _;
     }
 
+    modifier onlyApproved {
+        require(approved[msg.sender] == true);
+        _;
+    }
+
     function transferOwnership(address newOwner) public onlyOwner {
         owner = newOwner;
+    }
+
+    function approveContract(address _contract) internal {
+        approved[_contract] = true;
+    }
+
+    function removeContractApproval(address _contract) internal {
+        approved[_contract] = false;
     }
 }
