@@ -1,7 +1,7 @@
 pragma solidity ^0.4.25;
 
-import './CreditHub.sol';
 import './Owned.sol';
+import './CreditHub.sol';
 
 
 /**
@@ -68,10 +68,10 @@ contract Loan is Owned {
    * @param amount the amount to be invested
    * @notice add an investor and amount to mapping
   */
-  function addInvestment(address _investor, uint amount) public onlyOwner {
+  function addInvestment(address _investor, uint amount) public {
 
     // Require that the contract has not been launched
-    require(!launched);
+    require(launched == false);
 
     // Require that newBalance not greater than launchBalance
     require(newBalance  <= launchBalance);
