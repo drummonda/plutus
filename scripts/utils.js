@@ -37,10 +37,10 @@ const loanInput = { 'Loan.sol': fs.readFileSync(loanPath, 'utf8') }
 
 // Define the actual contract inputs
 const erc20 = { name: 'ERC20', inputs: {...erc20Input} };
-const peerToken = { name: 'PeerToken', inputs: {...peerTokenInput, ...ownedInput, ...erc20Input} };
+const peerToken = { name: 'PeerToken', inputs: {...peerTokenInput, ...ownedInput, ...erc20Input, ...loanInput, ...creditHubInput} };
 const creditHub = { name: 'CreditHub', inputs: {...ownedInput, ...creditHubInput} };
-const factory = { name: 'Factory', inputs: {...ownedInput, ...factoryInput, ...creditHubInput, ...loanInput}};
-const loan = { name: 'Loan', inputs: {...loanInput, ...ownedInput, ...creditHubInput}}
+const factory = { name: 'Factory', inputs: {...factoryInput, ...ownedInput, ...creditHubInput, ...loanInput}};
+const loan = { name: 'Loan', inputs: {...loanInput, ...ownedInput, ...factoryInput, ...creditHubInput}}
 
 /*
  *

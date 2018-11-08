@@ -3,9 +3,22 @@ const ganache = require("ganache-cli");
 const Web3 = require("web3");
 
 const web3 = new Web3(ganache.provider());
-const { interface, bytecode } = require("../build/CreditHub.json");
+const { interface, bytecode } = require("../build/Factory.json");
 
-let creditContract, accounts, contractAddress;
+let creditContract, accounts, contractAddress, loanContractAddress;
+
+// factory contract constructor arguments
+const _minScore = 0;
+const _maxScore = 800;
+const _baseScore = 400;
+
+// loan contract constructor arguments
+const loanLaunchBalance = 100;
+const loanInterestRate = 10;
+const loanDuration = 100;
+const loanGracePeriod = 5;
+const loanStrikes = 3;
+
 const initialSupply = 21000000;
 
 beforeEach(async () => {
@@ -17,7 +30,7 @@ beforeEach(async () => {
   creditContract = await new web3.eth.Contract(JSON.parse(interface))
     .deploy({
       data: bytecode,
-      arguments: [0, 800, 400]
+      arguments: [_minScore, _maxScore, _baseScore]
     })
     .send({
       from: accounts[0],
@@ -27,10 +40,32 @@ beforeEach(async () => {
   // Store the contract address
   contractAddress = creditContract.options.address;
 
-  // approve account five to modify user credit scoress
   await creditContract.methods
-    .approveContract(accounts[5])
-    .send({ from: accounts[0] });
+      .createNewLoan(
+                    loanLaunchBalance,
+                    loanInterestRate,
+                    loanDuration,
+                    loanGracePeriod,
+                    loanStrikes,
+                    contractAddress
+                    )
+      .send({
+       from: accounts[0],
+       gas: 1500000
+      });
+
+  // set the loan contract address equal to the one that
+  // was just created
+  loanContractAddress = await creditContract.methods
+    .loans(0)
+    .call();
+
+  // Send the contract 10 ether
+  await web3.eth.sendTransaction({
+    from: accounts[3],
+    to: loanContractAddress,
+    value: web3.utils.toWei("5", "ether")
+  });
 
 });
 
@@ -97,62 +132,13 @@ describe("Credit contract", () => {
 
   });
 
-  it("approveContract: owner can approve a user or contract to modify the credit scores", async () => {
-
-      await creditContract.methods
-        .approveContract(accounts[1])
-        .send({ from: accounts[0] });
+  it("approveContract: credit contract can approve a user or contract to modify the credit scores", async () => {
 
       const isApproved = await creditContract.methods
-        .approved(accounts[1])
+        .approved(loanContractAddress)
         .call();
 
       assert.equal(isApproved, true);
-
-  });
-
-  it("approveContract: non-owner cannot approve a user or contract to modify the credit scores", async () => {
-
-    try {
-
-      await creditContract.methods
-        .approveContract(accounts[1])
-        .send({ from: accounts[1] });
-
-      assert.fail("A non-owner cannot approve a contract to modify credit scores!");
-
-    } catch (err) {
-
-      // Do nothing, this was supposed to fail
-
-    }
-
-  });
-
-  it("raiseScore: approved entity can raise a user's score", async () => {
-
-    // Initialize the new user at Account 1
-    await creditContract.methods
-      .initializeUser(accounts[1])
-      .send({ from: accounts[0] });
-
-    // Grab the user's base score
-    const userInitialBaseScore = await creditContract.methods
-      .scoreOf(accounts[1])
-      .call();
-
-    // Account 0 (deployer) can raise score by 10
-    await creditContract.methods
-      .raiseScore(accounts[1], 10)
-      .send({ from: accounts[5] });
-
-    // Grab new base score
-    const userNewBaseScore = await creditContract.methods
-      .scoreOf(accounts[1])
-      .call();
-
-    assert.equal(userInitialBaseScore, 400);
-    assert.equal(userNewBaseScore, 410);
 
   });
 
@@ -177,33 +163,6 @@ describe("Credit contract", () => {
       // Do nothing, we expected it to fail
 
     }
-
-  });
-
-  it("lowerScore: approved entity can lower a user's score", async () => {
-
-    // Initialize the new user at Account 1
-    await creditContract.methods
-      .initializeUser(accounts[1])
-      .send({ from: accounts[0] });
-
-    // Grab the user's base score
-    const userInitialBaseScore = await creditContract.methods
-      .scoreOf(accounts[1])
-      .call();
-
-    // Account 0 (deployer) can raise score by 10
-    await creditContract.methods
-      .lowerScore(accounts[1], 10)
-      .send({ from: accounts[5] });
-
-    // Grab new base score
-    const userNewBaseScore = await creditContract.methods
-      .scoreOf(accounts[1])
-      .call();
-
-    assert.equal(userInitialBaseScore, 400);
-    assert.equal(userNewBaseScore, 390);
 
   });
 

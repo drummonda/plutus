@@ -3,7 +3,6 @@ const ganache = require("ganache-cli");
 const Web3 = require("web3");
 
 const web3 = new Web3(ganache.provider());
-const CreditHub = require("../build/CreditHub.json");
 const Factory = require("../build/Factory.json");
 
 let factoryContract,
@@ -12,6 +11,12 @@ let factoryContract,
     factoryContractAddress,
     creditContractAddress;
 
+// factory contract constructor arguments
+const _minScore = 0;
+const _maxScore = 800;
+const _baseScore = 400;
+
+// loan contract constructor arguments
 const loanLaunchBalance = 100;
 const loanInterestRate = 10;
 const loanDuration = 100;
@@ -23,25 +28,11 @@ beforeEach(async () => {
   // Grab all accounts
   accounts = await web3.eth.getAccounts();
 
-  // Deploy the credit hub contract and store the instance
-  creditContract = await new web3.eth.Contract(JSON.parse(CreditHub.interface))
-    .deploy({
-      data: CreditHub.bytecode,
-      arguments: [0, 800, 400]
-    })
-    .send({
-      from: accounts[0],
-      gas: 1500000
-    });
-
-  // Store the credit hub contract address
-  creditContractAddress = creditContract.options.address;
-
   // Deploy the factory contract and store the instance
   factoryContract = await new web3.eth.Contract(JSON.parse(Factory.interface))
     .deploy({
       data: Factory.bytecode,
-      arguments: [creditContractAddress]
+      arguments: [_minScore, _maxScore, _baseScore]
     })
     .send({
       from: accounts[0],
@@ -83,7 +74,7 @@ describe("Factory contract", () => {
                     loanDuration,
                     loanGracePeriod,
                     loanStrikes,
-                    creditContractAddress
+                    factoryContractAddress
                     )
       .send({
        from: accounts[0],
@@ -108,7 +99,7 @@ describe("Factory contract", () => {
                        loanDuration,
                        loanGracePeriod,
                        loanStrikes,
-                       creditContractAddress
+                       factoryContractAddress
                        )
         .send({
          from: accounts[1],
@@ -135,7 +126,7 @@ describe("Factory contract", () => {
                      loanDuration,
                      loanGracePeriod,
                      loanStrikes,
-                     creditContractAddress
+                     factoryContractAddress
                      )
       .send({
        from: accounts[0],
@@ -172,7 +163,7 @@ describe("Factory contract", () => {
                      loanDuration,
                      loanGracePeriod,
                      loanStrikes,
-                     creditContractAddress
+                     factoryContractAddress
                      )
       .send({
        from: accounts[0],

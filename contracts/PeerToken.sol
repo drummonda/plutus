@@ -2,6 +2,7 @@ pragma solidity ^0.4.25;
 
 import './Owned.sol';
 import './ERC20.sol';
+import './Loan.sol';
 
 /**
  * A currency for lending, PeerToken contract
@@ -72,7 +73,9 @@ contract PeerToken is Owned, ERC20 {
      * @param amount the amount of tokens it will receive
     */
     function invest (address _contract, uint amount) onlyOwner public {
+        Loan loan = Loan(_contract);
         _transfer(msg.sender, _contract, amount);
+        loan.addInvestment(msg.sender, amount);
         emit Transfer(msg.sender, _contract, amount);
         emit Invest(msg.sender, _contract, amount);
     }

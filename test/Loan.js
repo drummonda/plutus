@@ -3,52 +3,50 @@ const ganache = require("ganache-cli");
 const Web3 = require("web3");
 
 const web3 = new Web3(ganache.provider());
-const CreditHub = require("../build/CreditHub.json");
 const Loan = require("../build/Loan.json");
+const PeerToken = require("../build/PeerToken");
+const Factory = require("../build/Factory.json");
 
 let loanContract,
-    creditContract,
+    peerTokenContract,
+    factoryContract,
     accounts,
     loanContractAddress,
+    peerTokenContractAddress,
+    factoryContractAddress,
     creditContractAddress;
 
+const initialSupply = 21000000;
 const loanLaunchBalance = 100;
 const loanInterestRate = 10;
 const loanDuration = 100;
 const loanGracePeriod = 5;
 const loanStrikes = 3;
 
+const _minScore = 0;
+const _maxScore = 800;
+const _baseScore = 400;
+
 beforeEach(async () => {
 
   // Grab all accounts
   accounts = await web3.eth.getAccounts();
 
-  // Deploy the credit hub contract and store the instance
-  creditContract = await new web3.eth.Contract(JSON.parse(CreditHub.interface))
+  // Deploy the PeerToken contract and store the instance
+  peerTokenContract = await new web3.eth.Contract(JSON.parse(PeerToken.interface))
     .deploy({
-      data: CreditHub.bytecode,
-      arguments: [0, 800, 400]
+      data: PeerToken.bytecode,
+      arguments: [initialSupply, 'PeerToken', 'PTK']
     })
-    .send({
-      from: accounts[0],
-      gas: 1500000
-    });
+    .send({ from: accounts[0], gas: 1500000 });
 
-  // Store the credit hub contract address
-  creditContractAddress = creditContract.options.address;
+  peerTokenContractAddress = peerTokenContract.options.address;
 
   // Deploy the factory contract and store the instance
-  loanContract = await new web3.eth.Contract(JSON.parse(Loan.interface))
+  factoryContract = await new web3.eth.Contract(JSON.parse(Factory.interface))
     .deploy({
-      data: Loan.bytecode,
-      arguments: [
-                  loanLaunchBalance,
-                  loanInterestRate,
-                  loanDuration,
-                  loanGracePeriod,
-                  loanStrikes,
-                  creditContractAddress
-                 ]
+      data: Factory.bytecode,
+      arguments: [_minScore, _maxScore, _baseScore]
     })
     .send({
       from: accounts[0],
@@ -56,7 +54,41 @@ beforeEach(async () => {
     });
 
   // Store the contract address
-  loanContractAddress = loanContract.options.address;
+  factoryContractAddress = factoryContract.options.address;
+
+  // Create a new loan from the factory contract
+  // We have to do it this way, since the loan is only approved
+  // to modify the credit contract via the factory contract
+  // which inherits the approve contract method from the credit hub
+  await factoryContract.methods
+      .createNewLoan(
+                    loanLaunchBalance,
+                    loanInterestRate,
+                    loanDuration,
+                    loanGracePeriod,
+                    loanStrikes,
+                    factoryContractAddress
+                    )
+      .send({
+       from: accounts[0],
+       gas: 1500000
+      });
+
+  loanContractAddress = await factoryContract.methods
+      .loans(0)
+      .call();
+
+  // Instantiate a new loan contract that we can call methods
+  // on via web3, which is what the user will be able to do
+  // from our front end
+  loanContract = new web3.eth.Contract(JSON.parse(Loan.interface), loanContractAddress, {
+    from: accounts[0]
+  });
+
+  // Send Account 2 100 PTK from the main contract
+  await peerTokenContract.methods
+        .transfer(accounts[2], 100)
+        .send({ from: accounts[0] });
 
 });
 
@@ -98,8 +130,31 @@ describe("Loan contract", () => {
       .creditContract()
       .call();
 
-    assert.equal(assocCreditContract, creditContractAddress);
+    assert.equal(assocCreditContract, factoryContractAddress);
   });
+
+  it("addInvestment: when an account transfers PTK to loan it keeps track of balance invested", async () => {
+
+    // Account 2 will send 10 PTK to the loan contract via the
+    // invest function on PeerToken
+    await peerTokenContract.methods
+      .invest(loanContractAddress, 10)
+      .send({ from: accounts[2] });
+
+    // The loanContractAddress will now have 10 PTK associated with it
+    const balanceOfLoanContract = await peerTokenContract.methods
+      .balanceOf(loanContractAddress)
+      .call();
+
+    // The loan contract now stores an investment made by that account
+    const amountInvestedByAccount = await loanContract.methods
+      .investors(accounts[2])
+      .call();
+
+    assert.equal(balanceOfLoanContract, 10);
+    assert.equal(amountInvestedByAccount, 10);
+    assert.equal(balanceOfLoanContract, amountInvestedByAccount);
+  })
 
 
 })
